@@ -1,0 +1,52 @@
+# Dependencias
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Testing / cobertura
+/coverage
+
+# Next.js
+/.next/
+/out/
+
+# Producción
+/build
+/dist
+
+# Misc
+.DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Variables de entorno (mantener .env.example rastreado)
+.env
+.env*.local
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Editores
+.idea/
+*.swp
+
+# El ignore global del usuario (~/.config/git/ignore) excluye docs/ y .claude/.
+# En este repo esos paths se versionan a propósito (plan de trabajo, TOOLING, skills).
+!docs/
+!.claude/
+# ...salvo la config local/personal de Claude Code, que nunca se commitea.
+.claude/settings.local.json
