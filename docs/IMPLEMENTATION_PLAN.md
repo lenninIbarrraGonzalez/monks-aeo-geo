@@ -10,8 +10,8 @@
 | Fase | Descripción                                     | Estado        |
 | ---- | ----------------------------------------------- | ------------- |
 | 0    | Validación de tooling (skills & MCP)            | ✅ Completada |
-| 1    | Scaffold del proyecto                           | 🔄 En curso   |
-| 2    | Capa de motores de IA (abstracción multi-motor) | ⬜ Pendiente  |
+| 1    | Scaffold del proyecto                           | ✅ Completada |
+| 2    | Capa de motores de IA (abstracción multi-motor) | ✅ Completada |
 | 3    | Motor de auditoría y scoring                    | ⬜ Pendiente  |
 | 4    | API + streaming (SSE)                           | ⬜ Pendiente  |
 | 5    | UI: Landing + progreso en vivo                  | ⬜ Pendiente  |

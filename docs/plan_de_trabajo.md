@@ -8,7 +8,7 @@
 
 - [x] Fase 0 — Validación de tooling (skills & MCP)
 - [x] Fase 1 — Scaffold del proyecto
-- [ ] Fase 2 — Capa de motores de IA
+- [x] Fase 2 — Capa de motores de IA
 - [ ] Fase 3 — Motor de auditoría y scoring
 - [ ] Fase 4 — API + streaming (SSE)
 - [ ] Fase 5 — UI: Landing + progreso en vivo
@@ -134,14 +134,18 @@ Cada fase sigue el mismo ciclo, sin excepción:
 
 ## Fase 2 — Capa de motores de IA (abstracción multi-motor)
 
-- [ ] Interfaz `Engine` con tipos TS
-- [ ] Adaptador Gemini (Google AI Studio)
-- [ ] Adaptador OpenRouter (modelos `:free`)
-- [ ] Manejo de errores y rate-limits
-- [ ] Lectura de keys desde env (server-only)
-- [ ] Tests unitarios con mocks
-- [ ] **Code review** (`pre-commit-review`)
-- [ ] **Commit:** `feat(engines): capa de abstracción multi-motor de IA`
+- [x] Interfaz `Engine` con tipos TS
+- [x] Adaptador Gemini (Google AI Studio)
+- [x] Adaptador OpenRouter (modelos `:free`)
+- [x] Manejo de errores y rate-limits
+- [x] Lectura de keys desde env (server-only)
+- [x] Tests unitarios con mocks
+- [x] **Code review** (`pre-commit-review`)
+- [x] **Commit:** `feat(engines): capa de abstracción multi-motor de IA`
+
+> **Pendiente (requiere credenciales):** smoke-test en vivo de `getAvailableEngines()` +
+> `generate()` contra Gemini/OpenRouter reales. La lógica ya está cubierta por tests con
+> `fetch` mockeado; el smoke-test se corre cuando el usuario provea las API keys.
 
 ## Fase 3 — Motor de auditoría y scoring (el corazón)
 
