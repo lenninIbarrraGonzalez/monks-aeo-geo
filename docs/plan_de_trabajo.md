@@ -7,7 +7,7 @@
 ## Estado global
 
 - [x] Fase 0 — Validación de tooling (skills & MCP)
-- [ ] Fase 1 — Scaffold del proyecto
+- [x] Fase 1 — Scaffold del proyecto
 - [ ] Fase 2 — Capa de motores de IA
 - [ ] Fase 3 — Motor de auditoría y scoring
 - [ ] Fase 4 — API + streaming (SSE)
@@ -122,15 +122,15 @@ Cada fase sigue el mismo ciclo, sin excepción:
 
 ## Fase 1 — Scaffold del proyecto
 
-- [ ] Next.js (App Router) + TypeScript estricto
-- [ ] Tailwind CSS + shadcn/ui inicializado
-- [ ] ESLint + Prettier configurados
-- [ ] next-intl con rutas `es`/`en` (`es` default) y mensajes base
-- [ ] Estructura de carpetas del proyecto
-- [ ] `.env.example` + `README.md`
-- [ ] `docs/IMPLEMENTATION_PLAN.md` (espejo de este plan, versionado en el repo)
-- [ ] **Code review** (`pre-commit-review`)
-- [ ] **Commit:** `chore: scaffold Next.js + TypeScript + Tailwind + shadcn + i18n`
+- [x] Next.js (App Router) + TypeScript estricto
+- [x] Tailwind CSS + shadcn/ui inicializado
+- [x] ESLint + Prettier configurados
+- [x] next-intl con rutas `es`/`en` (`es` default) y mensajes base
+- [x] Estructura de carpetas del proyecto
+- [x] `.env.example` + `README.md`
+- [x] `docs/IMPLEMENTATION_PLAN.md` (espejo de este plan, versionado en el repo)
+- [x] **Code review** (`pre-commit-review`)
+- [x] **Commit:** `chore: scaffold Next.js + TypeScript + Tailwind + shadcn + i18n`
 
 ## Fase 2 — Capa de motores de IA (abstracción multi-motor)
 
