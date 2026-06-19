@@ -7,7 +7,7 @@
  */
 
 /** Identificador estable de cada motor soportado. */
-export type EngineId = 'gemini' | 'openrouter';
+export type EngineId = 'gemini' | 'groq' | 'openrouter';
 
 /** Rol de un mensaje en una conversación estilo chat. */
 export type ChatRole = 'system' | 'user' | 'assistant';

@@ -2,8 +2,9 @@ import 'server-only';
 
 import type { EngineId } from '@/types/engine';
 import type { Engine } from './base';
-import { getGeminiConfig, getOpenRouterConfig } from './env';
+import { getGeminiConfig, getGroqConfig, getOpenRouterConfig } from './env';
 import { createGeminiEngine } from './gemini';
+import { createGroqEngine } from './groq';
 import { createOpenRouterEngine } from './openrouter';
 
 /**
@@ -19,6 +20,10 @@ const builders: Array<() => Engine | null> = [
   () => {
     const config = getGeminiConfig();
     return config ? createGeminiEngine(config) : null;
+  },
+  () => {
+    const config = getGroqConfig();
+    return config ? createGroqEngine(config) : null;
   },
   () => {
     const config = getOpenRouterConfig();

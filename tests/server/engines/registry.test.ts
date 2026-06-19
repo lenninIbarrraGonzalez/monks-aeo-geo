@@ -8,6 +8,7 @@ afterEach(() => {
 /** Vacía las keys para partir de un estado sin motores disponibles. */
 function clearKeys() {
   vi.stubEnv('GEMINI_API_KEY', '');
+  vi.stubEnv('GROQ_API_KEY', '');
   vi.stubEnv('OPENROUTER_API_KEY', '');
 }
 
@@ -30,11 +31,20 @@ describe('registry', () => {
     expect(getEngine('openrouter')).toBeUndefined();
   });
 
-  it('expone ambos motores cuando hay ambas keys', () => {
+  it('expone los motores en orden de preferencia (gemini, groq, openrouter)', () => {
     clearKeys();
     vi.stubEnv('GEMINI_API_KEY', 'g');
+    vi.stubEnv('GROQ_API_KEY', 'gq');
     vi.stubEnv('OPENROUTER_API_KEY', 'o');
 
-    expect(getAvailableEngines().map((e) => e.id)).toEqual(['gemini', 'openrouter']);
+    expect(getAvailableEngines().map((e) => e.id)).toEqual(['gemini', 'groq', 'openrouter']);
+  });
+
+  it('expone Groq cuando solo está su key', () => {
+    clearKeys();
+    vi.stubEnv('GROQ_API_KEY', 'gq');
+
+    expect(getAvailableEngines().map((e) => e.id)).toEqual(['groq']);
+    expect(getEngine('groq')?.id).toBe('groq');
   });
 });

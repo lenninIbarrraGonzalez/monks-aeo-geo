@@ -9,7 +9,10 @@ import 'server-only';
  */
 
 /** Modelo por defecto de Gemini (free tier de Google AI Studio). */
-export const DEFAULT_GEMINI_MODEL = 'gemini-2.0-flash';
+export const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash';
+
+/** Modelo por defecto de Groq (free tier, sin tarjeta). */
+export const DEFAULT_GROQ_MODEL = 'llama-3.3-70b-versatile';
 
 /** Modelo por defecto de OpenRouter (sufijo `:free`, sin costo). */
 export const DEFAULT_OPENROUTER_MODEL = 'meta-llama/llama-3.3-70b-instruct:free';
@@ -36,6 +39,16 @@ export function getGeminiConfig(): EngineConfig | null {
   const apiKey = readEnv('GEMINI_API_KEY');
   if (!apiKey) return null;
   return { apiKey, model: readEnv('GEMINI_MODEL') ?? DEFAULT_GEMINI_MODEL };
+}
+
+/**
+ * Configuración de Groq, o `null` si no hay `GROQ_API_KEY`.
+ * El modelo se puede sobrescribir con `GROQ_MODEL`.
+ */
+export function getGroqConfig(): EngineConfig | null {
+  const apiKey = readEnv('GROQ_API_KEY');
+  if (!apiKey) return null;
+  return { apiKey, model: readEnv('GROQ_MODEL') ?? DEFAULT_GROQ_MODEL };
 }
 
 /**

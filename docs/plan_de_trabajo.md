@@ -136,16 +136,22 @@ Cada fase sigue el mismo ciclo, sin excepción:
 
 - [x] Interfaz `Engine` con tipos TS
 - [x] Adaptador Gemini (Google AI Studio)
+- [x] Adaptador Groq (free tier, OpenAI-compatible)
 - [x] Adaptador OpenRouter (modelos `:free`)
+- [x] Factory compartida OpenAI-compatible (reusada por Groq y OpenRouter)
 - [x] Manejo de errores y rate-limits
 - [x] Lectura de keys desde env (server-only)
 - [x] Tests unitarios con mocks
+- [x] **Smoke-test en vivo** (Gemini `2.5-flash` + Groq `llama-3.3-70b-versatile`): 2/2 OK
 - [x] **Code review** (`pre-commit-review`)
 - [x] **Commit:** `feat(engines): capa de abstracción multi-motor de IA`
 
-> **Pendiente (requiere credenciales):** smoke-test en vivo de `getAvailableEngines()` +
-> `generate()` contra Gemini/OpenRouter reales. La lógica ya está cubierta por tests con
-> `fetch` mockeado; el smoke-test se corre cuando el usuario provea las API keys.
+> **Validación en vivo (cerrada):** `tests/integration/engines.live.test.ts` (gateado tras
+> `LIVE_SMOKE=1`) corre prompts reales. Resultado: **Gemini** y **Groq** responden OK y son la
+> dupla por defecto del demo (gratis, sin tarjeta, contraste entre proveedores distintos).
+> **OpenRouter** queda configurado como tercer motor opcional; su free tier ($0 crédito) está
+> saturado y devuelve 429 intermitente, así que no es el motor primario del demo. El default de
+> Gemini se ajustó a `gemini-2.5-flash` (el `2.0-flash` no tenía cuota free en el proyecto).
 
 ## Fase 3 — Motor de auditoría y scoring (el corazón)
 
