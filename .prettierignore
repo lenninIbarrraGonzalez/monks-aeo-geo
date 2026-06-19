@@ -1,0 +1,22 @@
+# Build output
+.next/
+out/
+build/
+dist/
+coverage/
+
+# Dependencies
+node_modules/
+
+# Lockfiles
+pnpm-lock.yaml
+
+# Generated
+next-env.d.ts
+
+# Vendored skills (mantener tal cual upstream)
+.claude/
+
+# Docs de planificación mantenidos a mano (formato propio)
+docs/plan_de_trabajo.md
+docs/TOOLING.md

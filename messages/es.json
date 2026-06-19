@@ -1,0 +1,13 @@
+{
+  "Common": {
+    "appName": "AEO/GEO Auditor",
+    "languageSwitcher": "Idioma",
+    "spanish": "Español",
+    "english": "Inglés"
+  },
+  "Home": {
+    "title": "Descubrí cómo te ve la IA",
+    "subtitle": "Auditá cómo los asistentes de IA perciben tu marca y obtené un puntaje de visibilidad accionable.",
+    "cta": "Auditar mi marca"
+  }
+}

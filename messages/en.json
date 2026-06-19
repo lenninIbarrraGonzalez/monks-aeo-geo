@@ -1,0 +1,13 @@
+{
+  "Common": {
+    "appName": "AEO/GEO Auditor",
+    "languageSwitcher": "Language",
+    "spanish": "Spanish",
+    "english": "English"
+  },
+  "Home": {
+    "title": "Discover how AI sees you",
+    "subtitle": "Audit how AI assistants perceive your brand and get an actionable visibility score.",
+    "cta": "Audit my brand"
+  }
+}
