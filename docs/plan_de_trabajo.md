@@ -10,7 +10,7 @@
 - [x] Fase 1 — Scaffold del proyecto
 - [x] Fase 2 — Capa de motores de IA
 - [x] Fase 3 — Motor de auditoría y scoring
-- [ ] Fase 4 — API + streaming (SSE)
+- [x] Fase 4 — API + streaming (SSE)
 - [ ] Fase 5 — UI: Landing + progreso en vivo
 - [ ] Fase 6 — UI: Dashboard de resultados
 - [ ] Fase 7 — i18n completo + pulido visual
@@ -178,11 +178,26 @@ Cada fase sigue el mismo ciclo, sin excepción:
 
 ## Fase 4 — API + streaming (SSE)
 
-- [ ] API route que orquesta la auditoría
-- [ ] Emisión de progreso en vivo por SSE (qué pregunta, a qué motor, parciales)
-- [ ] Manejo de cancelación/errores del stream
-- [ ] **Code review** (`pre-commit-review`)
-- [ ] **Commit:** `feat(api): endpoint de auditoría con streaming SSE`
+- [x] API route que orquesta la auditoría
+- [x] Emisión de progreso en vivo por SSE (qué pregunta, a qué motor, parciales)
+- [x] Manejo de cancelación/errores del stream
+- [x] **Code review** (`pre-commit-review`)
+- [x] **Commit:** `feat(api): endpoint de auditoría con streaming SSE`
+
+> **Cierre (decisiones clave):** transporte **POST + fetch ReadableStream** (no `EventSource`),
+> para evitar el auto-reconnect que re-dispararía la auditoría completa y permitir body JSON
+> limpio con URLs. Contrato del wire en `src/server/audit/sse.ts`: `AuditStreamEvent` =
+> `AuditProgress` + terminales `done` (lleva el `AuditResult`) y `error` (con `kind` reutilizando
+> `EngineErrorKind` para que la UI distinga `auth`/`rate_limit`/…), serializado con `formatSse`.
+> Route handler en `src/app/api/audit/route.ts` (fuera de `[locale]`; `runtime=nodejs`,
+> `dynamic=force-dynamic`, `maxDuration=60`): valida el body con Zod (400), corta con 503 si no
+> hay motores, y envuelve `runAudit` en un `ReadableStream` reenviando cada `onProgress` 1:1.
+> Cancelación robusta: flag `closed` compartido entre `start`/`cancel` + `send` con try/catch
+> sobre `enqueue` (el abort puede llegar sin pasar por `cancel`); el `AbortSignal` se propaga a
+> `runAudit` para cortar las llamadas de motor en vuelo. El error viaja como **evento**, no como
+> throw, para no dejar a la UI a ciegas. Verificado en vivo: 400 (body inválido), 503 (sin
+> motores), happy path con `profile → prompts → answer×N → judged×N → scored → done` en vivo y
+> degradación elegante ante 429 de motor (errores por celda, cierra con `done`, sin crash).
 
 ## Fase 5 — UI: Landing + progreso en vivo
 

@@ -13,7 +13,7 @@
 | 1    | Scaffold del proyecto                           | ✅ Completada |
 | 2    | Capa de motores de IA (abstracción multi-motor) | ✅ Completada |
 | 3    | Motor de auditoría y scoring                    | ✅ Completada |
-| 4    | API + streaming (SSE)                           | ⬜ Pendiente  |
+| 4    | API + streaming (SSE)                           | ✅ Completada |
 | 5    | UI: Landing + progreso en vivo                  | ⬜ Pendiente  |
 | 6    | UI: Dashboard de resultados                     | ⬜ Pendiente  |
 | 7    | i18n completo + pulido visual                   | ⬜ Pendiente  |

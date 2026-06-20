@@ -27,3 +27,4 @@ export { computeScore, DIMENSION_WEIGHTS } from './scoring';
 export { detectBrandProfile } from './profile';
 export { judgePrompt, ABSENT_SIGNALS, type AnswerToJudge } from './judge';
 export { generateStructured, extractJsonText } from './json';
+export { formatSse, SSE_HEADERS, type AuditStreamEvent, type AuditErrorKind } from './sse';
