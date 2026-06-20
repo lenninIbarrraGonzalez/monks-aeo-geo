@@ -11,7 +11,7 @@
 - [x] Fase 2 — Capa de motores de IA
 - [x] Fase 3 — Motor de auditoría y scoring
 - [x] Fase 4 — API + streaming (SSE)
-- [ ] Fase 5 — UI: Landing + progreso en vivo
+- [x] Fase 5 — UI: Landing + progreso en vivo
 - [ ] Fase 6 — UI: Dashboard de resultados
 - [ ] Fase 7 — i18n completo + pulido visual
 - [ ] Fase 8 — Tests y verificación
@@ -201,13 +201,13 @@ Cada fase sigue el mismo ciclo, sin excepción:
 
 ## Fase 5 — UI: Landing + progreso en vivo
 
-- [ ] Landing con input de marca/URL
-- [ ] Botones de ejemplos destacados
-- [ ] Selector de idioma
-- [ ] Vista de progreso consumiendo el SSE
-- [ ] Aplicar guías de `frontend-design` / `high-end-visual-design`
-- [ ] **Code review** (`pre-commit-review`)
-- [ ] **Commit:** `feat(ui): landing y progreso en vivo`
+- [x] Landing con input de marca/URL
+- [x] Botones de ejemplos destacados
+- [x] Selector de idioma
+- [x] Vista de progreso consumiendo el SSE
+- [x] Aplicar guías de `frontend-design` / `high-end-visual-design`
+- [x] **Code review** (`pre-commit-review`)
+- [x] **Commit:** `feat(ui): landing y progreso en vivo`
 
 ## Fase 6 — UI: Dashboard de resultados
 
