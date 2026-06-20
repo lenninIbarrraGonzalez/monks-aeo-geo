@@ -73,6 +73,7 @@ export function createGeminiEngine(config: EngineConfig): Engine {
         generationConfig: {
           ...(request.temperature !== undefined && { temperature: request.temperature }),
           ...(request.maxTokens !== undefined && { maxOutputTokens: request.maxTokens }),
+          ...(request.json && { responseMimeType: 'application/json' }),
         },
       };
       if (systemText) {

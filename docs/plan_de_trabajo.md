@@ -9,7 +9,7 @@
 - [x] Fase 0 — Validación de tooling (skills & MCP)
 - [x] Fase 1 — Scaffold del proyecto
 - [x] Fase 2 — Capa de motores de IA
-- [ ] Fase 3 — Motor de auditoría y scoring
+- [x] Fase 3 — Motor de auditoría y scoring
 - [ ] Fase 4 — API + streaming (SSE)
 - [ ] Fase 5 — UI: Landing + progreso en vivo
 - [ ] Fase 6 — UI: Dashboard de resultados
@@ -155,14 +155,26 @@ Cada fase sigue el mismo ciclo, sin excepción:
 
 ## Fase 3 — Motor de auditoría y scoring (el corazón)
 
-- [ ] Auto-detección de perfil/categoría/competidores
-- [ ] Generación de prompts (las 5 intenciones)
-- [ ] Ejecución multi-motor de los prompts
-- [ ] LLM-as-judge con salida estructurada validada con Zod (5 señales)
-- [ ] Scoring 0–100 determinístico con sub-puntajes por dimensión y motor
-- [ ] Tests unitarios del scoring
-- [ ] **Code review reforzado** (`pre-commit-review` + `/code-review`)
-- [ ] **Commit:** `feat(audit): motor de auditoría y scoring`
+- [x] Auto-detección de perfil/categoría/competidores
+- [x] Generación de prompts (las 5 intenciones)
+- [x] Ejecución multi-motor de los prompts
+- [x] LLM-as-judge con salida estructurada validada con Zod (5 señales)
+- [x] Scoring 0–100 determinístico con sub-puntajes por dimensión y motor
+- [x] Tests unitarios del scoring
+- [x] **Code review reforzado** (`pre-commit-review` + `/code-review`)
+- [x] **Commit:** `feat(audit): motor de auditoría y scoring`
+
+> **Cierre (decisiones clave):** módulo en `src/server/audit/` (perfil → prompts → ejecución
+> multi-motor → juez batcheado por prompt → scoring). Salida LLM en **modo JSON nativo**
+> (`responseMimeType`/`response_format`, flag `json` agregado a `EngineRequest`) + parseo robusto
+> y validación Zod con 1 reintento. El **juez** corre 1 llamada por prompt (juzga todos los
+> motores juntos → menos llamadas, mejor comparación). `runAudit` expone `onProgress` para que la
+> Fase 4 lo envuelva en SSE sin tocar el núcleo. **Fixes del review:** fallo del juez se marca
+> como error de celda (excluida del scoring, no cuenta como ausencia real); errores de **auth**
+> del analista se propagan (no degradan a un score 0 que parezca legítimo); match de motor en el
+> juez sin distinguir mayúsculas; la dimensión competitiva se excluye del overall cuando no hubo
+> comparación (renormalizando pesos). El analista por defecto es **Gemini** (si está); ejecución
+> sobre todos los motores disponibles.
 
 ## Fase 4 — API + streaming (SSE)
 

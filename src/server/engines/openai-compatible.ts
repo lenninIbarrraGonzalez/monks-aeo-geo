@@ -72,6 +72,7 @@ export function createOpenAICompatibleEngine(options: OpenAICompatibleOptions): 
         messages,
         ...(request.temperature !== undefined && { temperature: request.temperature }),
         ...(request.maxTokens !== undefined && { max_tokens: request.maxTokens }),
+        ...(request.json && { response_format: { type: 'json_object' } }),
       };
 
       const response = await fetchWithRetry(

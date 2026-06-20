@@ -52,6 +52,19 @@ describe('createGeminiEngine', () => {
     expect((init as RequestInit).headers).toMatchObject({ 'x-goog-api-key': 'k' });
   });
 
+  it('pide responseMimeType application/json cuando request.json es true', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(json({ candidates: [{ content: { parts: [{ text: '{}' }] } }] }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await engine.generate({ prompt: 'x', json: true });
+
+    const [, init] = fetchMock.mock.calls[0]!;
+    const sentBody = JSON.parse((init as RequestInit).body as string);
+    expect(sentBody.generationConfig.responseMimeType).toBe('application/json');
+  });
+
   it('manda los mensajes system como systemInstruction', async () => {
     const fetchMock = vi
       .fn()

@@ -47,4 +47,30 @@ describe('createGroqEngine', () => {
       kind: 'invalid_response',
     });
   });
+
+  it('pide response_format json_object cuando request.json es true', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(json({ choices: [{ message: { content: '{}' } }] }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await engine.generate({ prompt: 'x', json: true });
+
+    const [, init] = fetchMock.mock.calls[0]!;
+    const sentBody = JSON.parse((init as RequestInit).body as string);
+    expect(sentBody.response_format).toEqual({ type: 'json_object' });
+  });
+
+  it('no incluye response_format si request.json no está', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(json({ choices: [{ message: { content: 'ok' } }] }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await engine.generate({ prompt: 'x' });
+
+    const [, init] = fetchMock.mock.calls[0]!;
+    const sentBody = JSON.parse((init as RequestInit).body as string);
+    expect(sentBody.response_format).toBeUndefined();
+  });
 });

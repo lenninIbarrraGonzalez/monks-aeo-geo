@@ -33,6 +33,12 @@ export interface EngineRequest {
   temperature?: number;
   /** Tope de tokens de salida. */
   maxTokens?: number;
+  /**
+   * Pide al proveedor que responda en modo JSON nativo (Gemini `responseMimeType`,
+   * OpenAI-compatible `response_format`). El llamador igual debe instruir el formato en el
+   * prompt y validar la salida; este flag solo reduce que el modelo agregue prosa alrededor.
+   */
+  json?: boolean;
   /** Señal externa de cancelación, combinada con el timeout interno. */
   signal?: AbortSignal;
 }
