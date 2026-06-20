@@ -7,7 +7,76 @@
   },
   "Home": {
     "title": "Descubrí cómo te ve la IA",
-    "subtitle": "Auditá cómo los asistentes de IA perciben tu marca y obtené un puntaje de visibilidad accionable.",
-    "cta": "Auditar mi marca"
+    "subtitle": "Auditá cómo los asistentes de IA perciben tu marca y obtené un puntaje de visibilidad accionable."
+  },
+  "Audit": {
+    "inputLabel": "Marca o URL",
+    "inputPlaceholder": "Ej.: Notion, stripe.com…",
+    "submit": "Auditar mi marca",
+    "submitting": "Auditando…",
+    "emptyError": "Ingresá una marca o URL para auditar.",
+    "examplesTitle": "O probá con un ejemplo",
+    "progress": {
+      "title": "Auditando {brand}",
+      "subtitle": "Le preguntamos a cada motor de IA como lo haría un cliente real.",
+      "cancel": "Cancelar",
+      "steps": {
+        "profile": "Detectando perfil",
+        "prompts": "Generando preguntas",
+        "answers": "Consultando motores",
+        "judge": "Analizando respuestas",
+        "score": "Calculando puntaje"
+      },
+      "profileTitle": "Perfil detectado",
+      "profileBy": "Detectado por {engine}",
+      "profileCategory": "Categoría",
+      "profileCompetitors": "Competidores",
+      "promptsTitle": "Preguntas y motores",
+      "statusPending": "Pendiente",
+      "statusOk": "Respondió",
+      "statusFailed": "Falló",
+      "statusJudged": "Analizado",
+      "intent": {
+        "definitional": "Definitoria",
+        "evaluative": "Evaluativa",
+        "comparative": "Comparativa",
+        "categorical": "Categórica",
+        "recommendation": "Recomendación"
+      }
+    },
+    "summary": {
+      "title": "Auditoría completa",
+      "subtitle": "Así percibe la IA a {brand} hoy.",
+      "scoreLabel": "AI Visibility Score",
+      "scoreOutOf": "de 100",
+      "dimensionsTitle": "Por dimensión",
+      "dimensions": {
+        "presence": "Presencia",
+        "accuracy": "Exactitud",
+        "sentiment": "Sentimiento",
+        "competitive": "Competitivo",
+        "citation": "Citación"
+      },
+      "enginesUsed": "Motores consultados",
+      "viewReport": "Ver reporte completo",
+      "viewReportSoon": "Próximamente",
+      "newAudit": "Nueva auditoría"
+    },
+    "error": {
+      "title": "No pudimos completar la auditoría",
+      "retry": "Reintentar",
+      "newAudit": "Empezar de nuevo",
+      "kind": {
+        "auth": "Las credenciales de los motores de IA no son válidas o faltan. Revisá la configuración del servidor.",
+        "rate_limit": "Los motores de IA están saturados por límite de uso. Esperá un momento y reintentá.",
+        "timeout": "La auditoría tardó demasiado y se interrumpió. Probá de nuevo.",
+        "network": "Hubo un problema de red al contactar a los motores de IA.",
+        "invalid_response": "Un motor de IA devolvió una respuesta inesperada.",
+        "server": "Ocurrió un error en el servidor durante la auditoría.",
+        "bad_request": "La solicitud de auditoría no es válida.",
+        "no_engines": "No hay motores de IA configurados en el servidor.",
+        "unknown": "Ocurrió un error inesperado durante la auditoría."
+      }
+    }
   }
 }

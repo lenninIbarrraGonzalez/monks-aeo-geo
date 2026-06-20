@@ -7,7 +7,76 @@
   },
   "Home": {
     "title": "Discover how AI sees you",
-    "subtitle": "Audit how AI assistants perceive your brand and get an actionable visibility score.",
-    "cta": "Audit my brand"
+    "subtitle": "Audit how AI assistants perceive your brand and get an actionable visibility score."
+  },
+  "Audit": {
+    "inputLabel": "Brand or URL",
+    "inputPlaceholder": "e.g. Notion, stripe.com…",
+    "submit": "Audit my brand",
+    "submitting": "Auditing…",
+    "emptyError": "Enter a brand or URL to audit.",
+    "examplesTitle": "Or try an example",
+    "progress": {
+      "title": "Auditing {brand}",
+      "subtitle": "We ask every AI engine the way a real customer would.",
+      "cancel": "Cancel",
+      "steps": {
+        "profile": "Detecting profile",
+        "prompts": "Generating questions",
+        "answers": "Querying engines",
+        "judge": "Analyzing answers",
+        "score": "Computing score"
+      },
+      "profileTitle": "Detected profile",
+      "profileBy": "Detected by {engine}",
+      "profileCategory": "Category",
+      "profileCompetitors": "Competitors",
+      "promptsTitle": "Questions and engines",
+      "statusPending": "Pending",
+      "statusOk": "Answered",
+      "statusFailed": "Failed",
+      "statusJudged": "Analyzed",
+      "intent": {
+        "definitional": "Definitional",
+        "evaluative": "Evaluative",
+        "comparative": "Comparative",
+        "categorical": "Categorical",
+        "recommendation": "Recommendation"
+      }
+    },
+    "summary": {
+      "title": "Audit complete",
+      "subtitle": "Here's how AI perceives {brand} today.",
+      "scoreLabel": "AI Visibility Score",
+      "scoreOutOf": "out of 100",
+      "dimensionsTitle": "By dimension",
+      "dimensions": {
+        "presence": "Presence",
+        "accuracy": "Accuracy",
+        "sentiment": "Sentiment",
+        "competitive": "Competitive",
+        "citation": "Citation"
+      },
+      "enginesUsed": "Engines queried",
+      "viewReport": "View full report",
+      "viewReportSoon": "Coming soon",
+      "newAudit": "New audit"
+    },
+    "error": {
+      "title": "We couldn't complete the audit",
+      "retry": "Retry",
+      "newAudit": "Start over",
+      "kind": {
+        "auth": "The AI engines' credentials are invalid or missing. Check the server configuration.",
+        "rate_limit": "The AI engines are rate-limited. Wait a moment and try again.",
+        "timeout": "The audit took too long and was interrupted. Please try again.",
+        "network": "There was a network problem reaching the AI engines.",
+        "invalid_response": "An AI engine returned an unexpected response.",
+        "server": "A server error occurred during the audit.",
+        "bad_request": "The audit request is invalid.",
+        "no_engines": "No AI engines are configured on the server.",
+        "unknown": "An unexpected error occurred during the audit."
+      }
+    }
   }
 }
