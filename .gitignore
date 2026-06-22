@@ -10,6 +10,8 @@
 
 # Testing / cobertura
 /coverage
+# Artefactos transitorios de Playwright MCP (snapshots/console de verificación e2e)
+/.playwright-mcp
 
 # Next.js
 /.next/

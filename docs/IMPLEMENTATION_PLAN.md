@@ -14,10 +14,10 @@
 | 2    | Capa de motores de IA (abstracción multi-motor) | ✅ Completada |
 | 3    | Motor de auditoría y scoring                    | ✅ Completada |
 | 4    | API + streaming (SSE)                           | ✅ Completada |
-| 5    | UI: Landing + progreso en vivo                  | ⬜ Pendiente  |
-| 6    | UI: Dashboard de resultados                     | ⬜ Pendiente  |
-| 7    | i18n completo + pulido visual                   | ⬜ Pendiente  |
-| 8    | Tests y verificación                            | ⬜ Pendiente  |
+| 5    | UI: Landing + progreso en vivo                  | ✅ Completada |
+| 6    | UI: Dashboard de resultados                     | ✅ Completada |
+| 7    | i18n completo + pulido visual                   | ✅ Completada |
+| 8    | Tests y verificación                            | ✅ Completada |
 | 9    | Deploy a Vercel                                 | ⬜ Pendiente  |
 
 ## Decisiones de arquitectura (Fase 1)

@@ -96,6 +96,7 @@
       "notMentioned": "No te menciona",
       "citedSource": "Cita tu fuente",
       "cellFailed": "Este motor no respondió a esta pregunta.",
+      "analysisUnavailable": "El motor respondió, pero no pudimos completar nuestro análisis de esta respuesta.",
       "recommendationsTitle": "Recomendaciones AEO/GEO",
       "recommendation": {
         "presence": "La IA rara vez te menciona. Publicá contenido canónico y ganá presencia en las fuentes que los asistentes citan (Wikipedia, prensa, reseñas y directorios del sector).",

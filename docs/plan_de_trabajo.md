@@ -14,7 +14,7 @@
 - [x] Fase 5 — UI: Landing + progreso en vivo
 - [x] Fase 6 — UI: Dashboard de resultados
 - [x] Fase 7 — i18n completo + pulido visual
-- [ ] Fase 8 — Tests y verificación
+- [x] Fase 8 — Tests y verificación
 - [ ] Fase 9 — Deploy a Vercel
 
 ---
@@ -265,10 +265,31 @@ Cada fase sigue el mismo ciclo, sin excepción:
 
 ## Fase 8 — Tests y verificación
 
-- [ ] Cobertura unitaria de scoring/parsers (`unit-testing`)
-- [ ] e2e con Playwright MCP de los flujos clave (`webapp-testing`)
-- [ ] **Code review** (`pre-commit-review`)
-- [ ] **Commit:** `test: cobertura de auditoría y e2e`
+- [x] Cobertura unitaria de scoring/parsers (`unit-testing`)
+- [x] e2e con Playwright MCP de los flujos clave (`webapp-testing`)
+- [x] **Code review** (`pre-commit-review`)
+- [x] **Commit:** `test: cobertura de auditoría y e2e`
+
+> **Cierre (decisiones clave):** la cobertura de `src/server/audit/**` y `src/server/engines/**` ya
+> venía completa de fases previas; los gaps reales eran los dos módulos **puros** de `src/lib/`
+> (nacidos "aislados de React para testearlos como función pura"). Se agregaron
+> `tests/lib/audit-report.test.ts` (cortes de tier/color en los bordes 34/67, orden de
+> recomendaciones por **impacto** = peso×brecha sin hardcodear pesos, cap en 4, `deriveCompetitive`
+> ignorando celdas con error/posición nula, `groupRunsByPrompt` con transparencia total) y
+> `tests/lib/audit-stream.test.ts` (parser SSE incremental: bloque completo, varios por chunk,
+> evento partido entre `push`, bloques sin `data:`/JSON inválido ignorados, `data:` multilínea).
+> Suite total **110 pass / 3 skip**; `src/lib/**` agregado a `coverage.include` de `vitest.config.ts`
+> (lib al 98 %). **e2e en vivo (Playwright MCP):** verificados los 4 flujos — happy path (SSE en
+> vivo → dashboard completo), i18n es/en (copy y metadata siguen el selector; el tema persiste al
+> cambiar idioma), toggle de tema (clase `.dark`/`light` + localStorage) y **degradación honesta**
+> sin crash. **Bug encontrado y corregido en la verificación:** cuando el **juez** falla en una
+> celda, el orquestador conserva la respuesta real del motor pero setea `run.error`; el dashboard
+> trataba *cualquier* `error` como "el motor no respondió", **ocultando la respuesta** y atribuyendo
+> mal la falla. Se distinguió en `audit-dashboard.tsx` el caso "motor no respondió" (`answer` vacío)
+> del caso "respondió pero no pudimos analizar" (nueva copia `analysisUnavailable` es/en): ahora se
+> muestra la respuesta textual + una nota ámbar, honrando el principio de honestidad del demo.
+> Entorno de prueba: la cuota free de Gemini estaba agotada (falló como motor y como analista), lo
+> que ejercitó justamente el camino degradado; Groq respondió las 5 preguntas correctamente.
 
 ## Fase 9 — Deploy a Vercel
 

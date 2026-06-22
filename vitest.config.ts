@@ -21,7 +21,7 @@ export default defineConfig({
     include: ['tests/**/*.test.ts'],
     coverage: {
       provider: 'v8',
-      include: ['src/server/engines/**', 'src/server/audit/**', 'src/types/**'],
+      include: ['src/server/engines/**', 'src/server/audit/**', 'src/lib/**', 'src/types/**'],
       reporter: ['text', 'html'],
     },
   },

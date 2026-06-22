@@ -96,6 +96,7 @@
       "notMentioned": "Doesn't mention you",
       "citedSource": "Cites your source",
       "cellFailed": "This engine did not answer this question.",
+      "analysisUnavailable": "The engine answered, but our analysis couldn't be completed for this answer.",
       "recommendationsTitle": "AEO/GEO recommendations",
       "recommendation": {
         "presence": "AI rarely mentions you. Publish canonical content and earn presence in the sources assistants cite (Wikipedia, press, reviews, and industry directories).",
