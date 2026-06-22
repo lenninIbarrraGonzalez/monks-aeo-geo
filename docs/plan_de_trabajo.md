@@ -12,7 +12,7 @@
 - [x] Fase 3 — Motor de auditoría y scoring
 - [x] Fase 4 — API + streaming (SSE)
 - [x] Fase 5 — UI: Landing + progreso en vivo
-- [ ] Fase 6 — UI: Dashboard de resultados
+- [x] Fase 6 — UI: Dashboard de resultados
 - [ ] Fase 7 — i18n completo + pulido visual
 - [ ] Fase 8 — Tests y verificación
 - [ ] Fase 9 — Deploy a Vercel
@@ -211,13 +211,27 @@ Cada fase sigue el mismo ciclo, sin excepción:
 
 ## Fase 6 — UI: Dashboard de resultados
 
-- [ ] Score titular + desgloses por dimensión y por motor
-- [ ] Citas textuales de las respuestas
-- [ ] Comparación entre motores
-- [ ] Posicionamiento competitivo
-- [ ] Recomendaciones accionables AEO/GEO
-- [ ] **Code review** (`pre-commit-review`)
-- [ ] **Commit:** `feat(ui): dashboard de resultados`
+- [x] Score titular + desgloses por dimensión y por motor
+- [x] Citas textuales de las respuestas
+- [x] Comparación entre motores
+- [x] Posicionamiento competitivo
+- [x] Recomendaciones accionables AEO/GEO
+- [x] **Code review** (`pre-commit-review`)
+- [x] **Commit:** `feat(ui): dashboard de resultados`
+
+> **Cierre (decisiones clave):** el estado `done` lo resuelve ahora `AuditDashboard`
+> (`src/components/audit-dashboard.tsx`), que reemplaza al `AuditSummary` mínimo de la Fase 5 (borrado).
+> La lógica de presentación derivada vive en `src/lib/audit-report.ts` (pura y testeable):
+> `scoreTier`/`scoreColor`/`barColor`, `deriveRecommendations` (recomendaciones por reglas
+> determinísticas, ordenadas por impacto = peso × brecha, cap 4; **sin** llamada LLM extra),
+> `deriveCompetitive` (agrega `competitivePosition` de las celdas) y `groupRunsByPrompt`. El dashboard
+> muestra: score titular + veredicto, desglose por dimensión (con descripción) y por motor (grilla
+> comparativa), posicionamiento competitivo, **todas** las respuestas agrupadas por pregunta y
+> etiquetadas por motor/sentimiento/mención (decisión del usuario: transparencia total; celdas
+> fallidas marcadas con honestidad) y recomendaciones AEO/GEO. Copy nuevo en el namespace
+> `Audit.dashboard` (es/en). Verificado en vivo con Playwright auditando Notion: score 71 "Buena
+> visibilidad", grilla de 3 motores (uno falló todas las celdas y se muestra en 0 sin romper),
+> competitivo con mejor posición 1, y recomendaciones de Presencia + Citación. `tsc`/`lint` limpios.
 
 ## Fase 7 — i18n completo + pulido visual
 

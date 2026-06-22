@@ -44,11 +44,18 @@
         "recommendation": "Recomendación"
       }
     },
-    "summary": {
+    "dashboard": {
       "title": "Auditoría completa",
       "subtitle": "Así percibe la IA a {brand} hoy.",
+      "auditedOn": "Auditado el {date}",
+      "degraded": "El perfil de la marca se detectó con información limitada; los resultados pueden ser parciales.",
       "scoreLabel": "AI Visibility Score",
       "scoreOutOf": "de 100",
+      "tier": {
+        "high": "Buena visibilidad",
+        "mid": "Visibilidad media",
+        "low": "Baja visibilidad"
+      },
       "dimensionsTitle": "Por dimensión",
       "dimensions": {
         "presence": "Presencia",
@@ -57,9 +64,44 @@
         "competitive": "Competitivo",
         "citation": "Citación"
       },
+      "dimensionDesc": {
+        "presence": "¿Con qué frecuencia la IA te menciona?",
+        "accuracy": "¿Qué tan fiel es lo que dice frente a tu perfil real?",
+        "sentiment": "¿Con qué tono habla de tu marca?",
+        "competitive": "¿Cómo te posiciona frente a tus competidores?",
+        "citation": "¿Cita tu sitio o fuentes oficiales?"
+      },
+      "byEngineTitle": "Por motor",
+      "byEngineSubtitle": "Cada asistente de IA percibe tu marca distinto. Así se compara su lectura.",
+      "competitiveTitle": "Posicionamiento competitivo",
+      "competitiveBest": "Mejor posición frente a competidores: {position}",
+      "competitiveCompetitors": "Competidores detectados",
+      "competitiveEmpty": "Ningún asistente posicionó a tu marca frente a competidores en esta auditoría.",
+      "quotesTitle": "Cómo te ve la IA hoy",
+      "quotesSubtitle": "Respuestas textuales de cada motor, etiquetadas por quién las generó.",
+      "sentimentLabel": {
+        "positive": "Positivo",
+        "neutral": "Neutro",
+        "negative": "Negativo"
+      },
+      "mentioned": "Te menciona",
+      "notMentioned": "No te menciona",
+      "citedSource": "Cita tu fuente",
+      "cellFailed": "Este motor no respondió a esta pregunta.",
+      "recommendationsTitle": "Recomendaciones AEO/GEO",
+      "recommendation": {
+        "presence": "La IA rara vez te menciona. Publicá contenido canónico y ganá presencia en las fuentes que los asistentes citan (Wikipedia, prensa, reseñas y directorios del sector).",
+        "accuracy": "La IA describe tu marca con imprecisiones. Reforzá una descripción canónica clara y consistente en tu sitio y en las fuentes que la IA consulta.",
+        "sentiment": "El tono de la IA hacia tu marca es tibio o negativo. Impulsá reseñas, casos de éxito y testimonios visibles que moldeen la narrativa.",
+        "competitive": "Tus competidores aparecen mejor posicionados. Diferenciá tu propuesta de valor en contenido comparativo y de categoría.",
+        "citation": "La IA no cita tu sitio oficial. Mejorá datos estructurados, autoridad y enlaces para volverte una fuente citable."
+      },
+      "severity": {
+        "low": "Prioridad alta",
+        "mid": "Oportunidad"
+      },
+      "recommendationsPositive": "Tu marca tiene buena visibilidad en todas las dimensiones. Mantené el contenido fresco y monitoreá cómo evoluciona.",
       "enginesUsed": "Motores consultados",
-      "viewReport": "Ver reporte completo",
-      "viewReportSoon": "Próximamente",
       "newAudit": "Nueva auditoría"
     },
     "error": {

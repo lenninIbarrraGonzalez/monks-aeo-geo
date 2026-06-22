@@ -44,11 +44,18 @@
         "recommendation": "Recommendation"
       }
     },
-    "summary": {
+    "dashboard": {
       "title": "Audit complete",
       "subtitle": "Here's how AI perceives {brand} today.",
+      "auditedOn": "Audited on {date}",
+      "degraded": "The brand profile was detected with limited information; results may be partial.",
       "scoreLabel": "AI Visibility Score",
       "scoreOutOf": "out of 100",
+      "tier": {
+        "high": "Good visibility",
+        "mid": "Average visibility",
+        "low": "Low visibility"
+      },
       "dimensionsTitle": "By dimension",
       "dimensions": {
         "presence": "Presence",
@@ -57,9 +64,44 @@
         "competitive": "Competitive",
         "citation": "Citation"
       },
+      "dimensionDesc": {
+        "presence": "How often does AI mention you?",
+        "accuracy": "How faithful is what it says vs. your real profile?",
+        "sentiment": "What tone does it use about your brand?",
+        "competitive": "How does it position you against competitors?",
+        "citation": "Does it cite your site or official sources?"
+      },
+      "byEngineTitle": "By engine",
+      "byEngineSubtitle": "Each AI assistant perceives your brand differently. Here's how their readings compare.",
+      "competitiveTitle": "Competitive positioning",
+      "competitiveBest": "Best position against competitors: {position}",
+      "competitiveCompetitors": "Detected competitors",
+      "competitiveEmpty": "No assistant positioned your brand against competitors in this audit.",
+      "quotesTitle": "How AI sees you today",
+      "quotesSubtitle": "Verbatim answers from each engine, labeled by who generated them.",
+      "sentimentLabel": {
+        "positive": "Positive",
+        "neutral": "Neutral",
+        "negative": "Negative"
+      },
+      "mentioned": "Mentions you",
+      "notMentioned": "Doesn't mention you",
+      "citedSource": "Cites your source",
+      "cellFailed": "This engine did not answer this question.",
+      "recommendationsTitle": "AEO/GEO recommendations",
+      "recommendation": {
+        "presence": "AI rarely mentions you. Publish canonical content and earn presence in the sources assistants cite (Wikipedia, press, reviews, and industry directories).",
+        "accuracy": "AI describes your brand inaccurately. Reinforce a clear, consistent canonical description on your site and across the sources AI consults.",
+        "sentiment": "AI's tone toward your brand is lukewarm or negative. Drive reviews, success stories, and visible testimonials that shape the narrative.",
+        "competitive": "Your competitors are positioned ahead of you. Differentiate your value proposition in comparative and category content.",
+        "citation": "AI doesn't cite your official site. Improve structured data, authority, and links to become a citable source."
+      },
+      "severity": {
+        "low": "High priority",
+        "mid": "Opportunity"
+      },
+      "recommendationsPositive": "Your brand has good visibility across every dimension. Keep content fresh and monitor how it evolves.",
       "enginesUsed": "Engines queried",
-      "viewReport": "View full report",
-      "viewReportSoon": "Coming soon",
       "newAudit": "New audit"
     },
     "error": {

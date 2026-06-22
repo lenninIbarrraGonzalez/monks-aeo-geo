@@ -2,9 +2,9 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 
+import { AuditDashboard } from '@/components/audit-dashboard';
 import { AuditError } from '@/components/audit-error';
 import { AuditProgress } from '@/components/audit-progress';
-import { AuditSummary } from '@/components/audit-summary';
 import { BrandForm } from '@/components/brand-form';
 import { ExampleBrands } from '@/components/example-brands';
 import { useAuditStream } from '@/hooks/use-audit-stream';
@@ -42,7 +42,7 @@ export function AuditExperience() {
       )}
 
       {audit.status === 'done' && audit.result && (
-        <AuditSummary result={audit.result} onNewAudit={audit.reset} />
+        <AuditDashboard result={audit.result} onNewAudit={audit.reset} />
       )}
 
       {audit.status === 'error' && audit.error && (
