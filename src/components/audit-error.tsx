@@ -24,7 +24,7 @@ export function AuditError({ error, onRetry, onNewAudit }: AuditErrorProps) {
       <Card className="animate-fade-in border-destructive/30">
         <CardContent className="flex flex-col items-center gap-3 pt-2 text-center">
           <span className="bg-destructive/10 text-destructive flex size-10 items-center justify-center rounded-full">
-            <AlertTriangle className="size-5" />
+            <AlertTriangle className="size-5" aria-hidden="true" />
           </span>
           <h2 className="text-lg font-semibold">{t('title')}</h2>
           <p className="text-muted-foreground text-sm">{t(`kind.${error.kind}`)}</p>

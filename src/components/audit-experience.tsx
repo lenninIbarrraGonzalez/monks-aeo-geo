@@ -37,9 +37,7 @@ export function AuditExperience() {
         </div>
       )}
 
-      {audit.status === 'running' && (
-        <AuditProgress state={audit} onCancel={audit.reset} />
-      )}
+      {audit.status === 'running' && <AuditProgress state={audit} onCancel={audit.reset} />}
 
       {audit.status === 'done' && audit.result && (
         <AuditDashboard result={audit.result} onNewAudit={audit.reset} />

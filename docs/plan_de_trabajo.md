@@ -13,7 +13,7 @@
 - [x] Fase 4 — API + streaming (SSE)
 - [x] Fase 5 — UI: Landing + progreso en vivo
 - [x] Fase 6 — UI: Dashboard de resultados
-- [ ] Fase 7 — i18n completo + pulido visual
+- [x] Fase 7 — i18n completo + pulido visual
 - [ ] Fase 8 — Tests y verificación
 - [ ] Fase 9 — Deploy a Vercel
 
@@ -235,12 +235,33 @@ Cada fase sigue el mismo ciclo, sin excepción:
 
 ## Fase 7 — i18n completo + pulido visual
 
-- [ ] Traducciones es/en completas de la UI
-- [ ] Textos de reporte generados en el idioma activo
-- [ ] Responsive + accesibilidad
-- [ ] Estados de error/vacío y animaciones
-- [ ] **Code review** (`pre-commit-review`)
-- [ ] **Commit:** `feat(i18n): traducciones completas y pulido visual`
+- [x] Traducciones es/en completas de la UI
+- [x] Textos de reporte generados en el idioma activo
+- [x] Responsive + accesibilidad
+- [x] Estados de error/vacío y animaciones
+- [x] **Code review** (`pre-commit-review`)
+- [x] **Commit:** `feat(i18n): traducciones completas y pulido visual`
+
+> **Cierre (decisiones clave):** la base de i18n ya venía sólida de fases previas (claves es/en
+> balanceadas, pipeline de auditoría locale-aware). Esta fase cerró los gaps reales: **metadata
+> localizada** vía `generateMetadata` + `getTranslations` (namespace `Metadata`, antes fija en
+> español) y **errores del API route** (`route.ts`) localizados por `locale` (record por idioma,
+> sin next-intl en el handler; el 400 lee el locale de forma tolerante aunque el body sea inválido).
+> Se agregó **toggle de tema claro/oscuro/sistema** (decisión del usuario) con `next-themes`:
+> `ThemeProvider attribute="class"` + `suppressHydrationWarning` en el layout, nuevo
+> `theme-toggle.tsx` (patrón análogo al `language-selector`, con guard de montaje para el mismatch
+> SSR de `aria-pressed`), montado en el `site-header` junto al selector de idioma; los tokens
+> `.dark` de `globals.css` ya existían y matchean la clase inyectada. **Pulido (alcance "cerrar
+> gaps", sin rediseño):** stagger en cascada de las cards del dashboard (delay incremental reusando
+> `animate-fade-in`), región `role/aria-live="polite"` en la zona dinámica del progreso, stepper
+> responsive (`size-7/text-[10px]` en mobile → `sm:size-8/sm:text-xs`) y `aria-hidden` en íconos
+> decorativos (progress/dashboard/error/toggle). Verificado en vivo con Playwright: `/` (es) y `/en`
+> con metadata, h1 y labels del toggle traducidos; tema oscuro aplica la clase `dark`, persiste en
+> localStorage y sobrevive al cambio de idioma; auditoría de Notion a 375px con stepper sin apretar
+> y dashboard completo (score 79, 3 motores incl. uno fallido en 0, citas, recomendaciones).
+> `tsc`/`lint`/tests (90 pass, 3 skip) limpios. **Nota:** next-themes inyecta un `<script>` de
+> no-flash que React 19 reporta como warning **dev-only** en re-render de cliente; no afecta la
+> funcionalidad (el tema se aplica en SSR sin flash).
 
 ## Fase 8 — Tests y verificación
 

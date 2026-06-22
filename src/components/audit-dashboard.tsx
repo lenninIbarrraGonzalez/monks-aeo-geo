@@ -23,6 +23,9 @@ interface AuditDashboardProps {
   onNewAudit: () => void;
 }
 
+/** Delay incremental para el efecto cascada de entrada de las cards (reusa `animate-fade-in`). */
+const fadeInDelay = (index: number): React.CSSProperties => ({ animationDelay: `${index * 80}ms` });
+
 /**
  * Dashboard de resultados (Fase 6): el reporte completo de la auditoría. Compone, sobre el
  * `AuditResult`, el score titular + veredicto, el desglose por dimensión y por motor, el
@@ -48,14 +51,17 @@ export function AuditDashboard({ result, onNewAudit }: AuditDashboardProps) {
       </header>
 
       {profile.degraded && (
-        <p className="border-amber-500/40 bg-amber-500/10 text-foreground flex items-start gap-2 rounded-lg border px-3 py-2 text-sm">
-          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+        <p className="text-foreground flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
+          <AlertTriangle
+            className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400"
+            aria-hidden="true"
+          />
           <span>{t('degraded')}</span>
         </p>
       )}
 
       {/* Score titular + veredicto */}
-      <Card className="animate-fade-in items-center text-center">
+      <Card className="animate-fade-in items-center text-center" style={fadeInDelay(0)}>
         <CardContent className="flex flex-col items-center gap-1 pt-2">
           <span className="text-muted-foreground text-sm">{t('scoreLabel')}</span>
           <span className={cn('text-6xl font-bold tabular-nums', scoreColor(score.overall))}>
@@ -69,7 +75,7 @@ export function AuditDashboard({ result, onNewAudit }: AuditDashboardProps) {
       </Card>
 
       {/* Desglose por dimensión */}
-      <Card className="animate-fade-in">
+      <Card className="animate-fade-in" style={fadeInDelay(1)}>
         <CardHeader>
           <CardTitle className="text-base">{t('dimensionsTitle')}</CardTitle>
         </CardHeader>
@@ -98,17 +104,22 @@ export function AuditDashboard({ result, onNewAudit }: AuditDashboardProps) {
 
       {/* Desglose y comparación por motor */}
       {score.byEngine.length > 0 && (
-        <Card className="animate-fade-in">
+        <Card className="animate-fade-in" style={fadeInDelay(2)}>
           <CardHeader>
             <CardTitle className="text-base">{t('byEngineTitle')}</CardTitle>
             <p className="text-muted-foreground text-sm">{t('byEngineSubtitle')}</p>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
             {score.byEngine.map((engine) => (
-              <div key={engine.engineId} className="border-border/60 flex flex-col gap-3 rounded-lg border p-4">
+              <div
+                key={engine.engineId}
+                className="border-border/60 flex flex-col gap-3 rounded-lg border p-4"
+              >
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="text-sm font-medium">{engine.label}</span>
-                  <span className={cn('text-2xl font-bold tabular-nums', scoreColor(engine.overall))}>
+                  <span
+                    className={cn('text-2xl font-bold tabular-nums', scoreColor(engine.overall))}
+                  >
                     {Math.round(engine.overall)}
                   </span>
                 </div>
@@ -118,7 +129,9 @@ export function AuditDashboard({ result, onNewAudit }: AuditDashboardProps) {
                     return (
                       <li key={dimension} className="flex flex-col gap-1">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">{t(`dimensions.${dimension}`)}</span>
+                          <span className="text-muted-foreground">
+                            {t(`dimensions.${dimension}`)}
+                          </span>
                           <span className="tabular-nums">{value}</span>
                         </div>
                         <ScoreBar value={value} />
@@ -133,10 +146,10 @@ export function AuditDashboard({ result, onNewAudit }: AuditDashboardProps) {
       )}
 
       {/* Posicionamiento competitivo */}
-      <CompetitiveSection result={result} />
+      <CompetitiveSection result={result} delay={fadeInDelay(3)} />
 
       {/* Citas textuales: todas las respuestas, agrupadas por pregunta */}
-      <Card className="animate-fade-in">
+      <Card className="animate-fade-in" style={fadeInDelay(4)}>
         <CardHeader>
           <CardTitle className="text-base">{t('quotesTitle')}</CardTitle>
           <p className="text-muted-foreground text-sm">{t('quotesSubtitle')}</p>
@@ -161,7 +174,7 @@ export function AuditDashboard({ result, onNewAudit }: AuditDashboardProps) {
       </Card>
 
       {/* Recomendaciones AEO/GEO */}
-      <Card className="animate-fade-in">
+      <Card className="animate-fade-in" style={fadeInDelay(5)}>
         <CardHeader>
           <CardTitle className="text-base">{t('recommendationsTitle')}</CardTitle>
         </CardHeader>
@@ -169,7 +182,9 @@ export function AuditDashboard({ result, onNewAudit }: AuditDashboardProps) {
           {(() => {
             const recommendations = deriveRecommendations(score);
             if (recommendations.length === 0) {
-              return <p className="text-muted-foreground text-sm">{t('recommendationsPositive')}</p>;
+              return (
+                <p className="text-muted-foreground text-sm">{t('recommendationsPositive')}</p>
+              );
             }
             return (
               <ul className="flex flex-col gap-3">
@@ -188,7 +203,9 @@ export function AuditDashboard({ result, onNewAudit }: AuditDashboardProps) {
                       </span>
                       <span className="text-sm font-medium">{t(`dimensions.${dimension}`)}</span>
                     </div>
-                    <p className="text-muted-foreground text-sm">{t(`recommendation.${dimension}`)}</p>
+                    <p className="text-muted-foreground text-sm">
+                      {t(`recommendation.${dimension}`)}
+                    </p>
                   </li>
                 ))}
               </ul>
@@ -226,13 +243,19 @@ function ScoreBar({ value }: { value: number }) {
 }
 
 /** Sección de posicionamiento competitivo, con estado vacío honesto si no hubo comparación. */
-function CompetitiveSection({ result }: { result: AuditResult }) {
+function CompetitiveSection({
+  result,
+  delay,
+}: {
+  result: AuditResult;
+  delay?: React.CSSProperties;
+}) {
   const t = useTranslations('Audit.dashboard');
   const competitive = deriveCompetitive(result);
   const score = Math.round(result.score.dimensions.competitive);
 
   return (
-    <Card className="animate-fade-in">
+    <Card className="animate-fade-in" style={delay}>
       <CardHeader>
         <CardTitle className="text-base">{t('competitiveTitle')}</CardTitle>
       </CardHeader>
@@ -257,7 +280,10 @@ function CompetitiveSection({ result }: { result: AuditResult }) {
             <span className="text-muted-foreground text-xs">{t('competitiveCompetitors')}</span>
             <div className="flex flex-wrap gap-2">
               {competitive.competitors.map((competitor) => (
-                <span key={competitor} className="border-border rounded-full border px-2 py-0.5 text-xs">
+                <span
+                  key={competitor}
+                  className="border-border rounded-full border px-2 py-0.5 text-xs"
+                >
                   {competitor}
                 </span>
               ))}
@@ -281,14 +307,17 @@ function EngineAnswer({ run }: { run: EngineRun }) {
         <span className="text-muted-foreground text-xs">{run.model}</span>
         {!failed && (
           <>
-            <SentimentChip sentiment={run.signals.sentiment} label={t(`sentimentLabel.${run.signals.sentiment}`)} />
+            <SentimentChip
+              sentiment={run.signals.sentiment}
+              label={t(`sentimentLabel.${run.signals.sentiment}`)}
+            />
             <SignalChip
               ok={run.signals.mentioned}
               label={run.signals.mentioned ? t('mentioned') : t('notMentioned')}
             />
             {run.signals.citedSource && (
               <span className="text-primary border-primary/40 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs">
-                <Link2 className="size-3" />
+                <Link2 className="size-3" aria-hidden="true" />
                 {t('citedSource')}
               </span>
             )}
@@ -297,12 +326,12 @@ function EngineAnswer({ run }: { run: EngineRun }) {
       </div>
       {failed ? (
         <p className="text-muted-foreground flex items-center gap-2 text-sm">
-          <X className="text-destructive size-4 shrink-0" />
+          <X className="text-destructive size-4 shrink-0" aria-hidden="true" />
           {t('cellFailed')}
         </p>
       ) : (
         <p className="text-muted-foreground flex gap-2 text-sm leading-relaxed whitespace-pre-wrap">
-          <Quote className="mt-0.5 size-4 shrink-0 opacity-50" />
+          <Quote className="mt-0.5 size-4 shrink-0 opacity-50" aria-hidden="true" />
           <span>{run.answer}</span>
         </p>
       )}
@@ -335,7 +364,11 @@ function SignalChip({ ok, label }: { ok: boolean; label: string }) {
         ok ? 'border-primary/40 text-primary' : 'border-border text-muted-foreground',
       )}
     >
-      {ok ? <Check className="size-3" /> : <X className="size-3" />}
+      {ok ? (
+        <Check className="size-3" aria-hidden="true" />
+      ) : (
+        <X className="size-3" aria-hidden="true" />
+      )}
       {label}
     </span>
   );

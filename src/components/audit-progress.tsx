@@ -46,7 +46,7 @@ export function AuditProgress({ state, onCancel }: AuditProgressProps) {
       </header>
 
       {/* Stepper de fases */}
-      <ol className="flex items-center justify-between gap-2">
+      <ol className="flex items-center justify-between gap-1 sm:gap-2">
         {STEPS.map((step, index) => {
           const position = index + 1;
           const status =
@@ -55,18 +55,18 @@ export function AuditProgress({ state, onCancel }: AuditProgressProps) {
             <li key={step} className="flex flex-1 flex-col items-center gap-2 text-center">
               <span
                 className={cn(
-                  'flex size-8 items-center justify-center rounded-full border text-sm font-medium transition-colors',
+                  'flex size-7 items-center justify-center rounded-full border text-sm font-medium transition-colors sm:size-8',
                   status === 'done' && 'border-primary bg-primary text-primary-foreground',
                   status === 'active' &&
                     'border-primary text-primary animate-pulse-soft bg-transparent',
                   status === 'pending' && 'border-border text-muted-foreground',
                 )}
               >
-                {status === 'done' ? <Check className="size-4" /> : position}
+                {status === 'done' ? <Check className="size-4" aria-hidden="true" /> : position}
               </span>
               <span
                 className={cn(
-                  'text-xs leading-tight',
+                  'text-[10px] leading-tight sm:text-xs',
                   status === 'pending' ? 'text-muted-foreground' : 'text-foreground',
                 )}
               >
@@ -77,70 +77,75 @@ export function AuditProgress({ state, onCancel }: AuditProgressProps) {
         })}
       </ol>
 
-      {/* Perfil detectado */}
-      {profile && (
-        <Card className="animate-fade-in">
-          <CardHeader>
-            <CardTitle className="text-base">{t('profileTitle')}</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-3 text-sm">
-            <p className="text-muted-foreground">{profile.description}</p>
-            <div className="flex flex-col gap-1">
-              <span>
-                <span className="text-muted-foreground">{t('profileCategory')}: </span>
-                {profile.category}
-              </span>
-              {profile.competitors.length > 0 && (
+      {/* Zona dinámica: lectores de pantalla anuncian la llegada de perfil/respuestas en vivo. */}
+      <div className="flex flex-col gap-6" aria-live="polite">
+        {/* Perfil detectado */}
+        {profile && (
+          <Card className="animate-fade-in">
+            <CardHeader>
+              <CardTitle className="text-base">{t('profileTitle')}</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3 text-sm">
+              <p className="text-muted-foreground">{profile.description}</p>
+              <div className="flex flex-col gap-1">
                 <span>
-                  <span className="text-muted-foreground">{t('profileCompetitors')}: </span>
-                  {profile.competitors.join(', ')}
+                  <span className="text-muted-foreground">{t('profileCategory')}: </span>
+                  {profile.category}
                 </span>
-              )}
-            </div>
-            <span className="text-muted-foreground text-xs">
-              {t('profileBy', { engine: ENGINE_LABELS[profile.detectedBy] ?? profile.detectedBy })}
-            </span>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Matriz prompt × motor */}
-      {prompts.length > 0 && (
-        <Card className="animate-fade-in">
-          <CardHeader>
-            <CardTitle className="text-base">{t('promptsTitle')}</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col divide-y">
-            {prompts.map((prompt) => (
-              <div key={prompt.id} className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0">
-                <div className="flex items-start justify-between gap-3">
-                  <p className="text-sm">{prompt.text}</p>
-                  {judged[prompt.id] && (
-                    <span className="text-primary shrink-0 text-xs font-medium">
-                      {t('statusJudged')}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-muted-foreground rounded bg-muted px-2 py-0.5 text-xs">
-                    {t(`intent.${prompt.intent}`)}
+                {profile.competitors.length > 0 && (
+                  <span>
+                    <span className="text-muted-foreground">{t('profileCompetitors')}: </span>
+                    {profile.competitors.join(', ')}
                   </span>
-                  {engines.map((engineId) => (
-                    <EngineChip
-                      key={engineId}
-                      label={ENGINE_LABELS[engineId] ?? engineId}
-                      ok={answers[prompt.id]?.[engineId]}
-                      pendingLabel={t('statusPending')}
-                      okLabel={t('statusOk')}
-                      failedLabel={t('statusFailed')}
-                    />
-                  ))}
-                </div>
+                )}
               </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
+              <span className="text-muted-foreground text-xs">
+                {t('profileBy', {
+                  engine: ENGINE_LABELS[profile.detectedBy] ?? profile.detectedBy,
+                })}
+              </span>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Matriz prompt × motor */}
+        {prompts.length > 0 && (
+          <Card className="animate-fade-in">
+            <CardHeader>
+              <CardTitle className="text-base">{t('promptsTitle')}</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col divide-y">
+              {prompts.map((prompt) => (
+                <div key={prompt.id} className="flex flex-col gap-2 py-3 first:pt-0 last:pb-0">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="text-sm">{prompt.text}</p>
+                    {judged[prompt.id] && (
+                      <span className="text-primary shrink-0 text-xs font-medium">
+                        {t('statusJudged')}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-muted-foreground bg-muted rounded px-2 py-0.5 text-xs">
+                      {t(`intent.${prompt.intent}`)}
+                    </span>
+                    {engines.map((engineId) => (
+                      <EngineChip
+                        key={engineId}
+                        label={ENGINE_LABELS[engineId] ?? engineId}
+                        ok={answers[prompt.id]?.[engineId]}
+                        pendingLabel={t('statusPending')}
+                        okLabel={t('statusOk')}
+                        failedLabel={t('statusFailed')}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       <div className="flex justify-center">
         <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
@@ -175,9 +180,9 @@ function EngineChip({ label, ok, pendingLabel, okLabel, failedLabel }: EngineChi
         status === 'pending' && 'border-border text-muted-foreground',
       )}
     >
-      {status === 'pending' && <Loader2 className="size-3 animate-spin" />}
-      {status === 'ok' && <Check className="size-3" />}
-      {status === 'failed' && <X className="size-3" />}
+      {status === 'pending' && <Loader2 className="size-3 animate-spin" aria-hidden="true" />}
+      {status === 'ok' && <Check className="size-3" aria-hidden="true" />}
+      {status === 'failed' && <X className="size-3" aria-hidden="true" />}
       {label}
     </span>
   );

@@ -3,7 +3,15 @@
     "appName": "AEO/GEO Auditor",
     "languageSwitcher": "Idioma",
     "spanish": "Español",
-    "english": "Inglés"
+    "english": "Inglés",
+    "themeSwitcher": "Tema",
+    "themeLight": "Claro",
+    "themeDark": "Oscuro",
+    "themeSystem": "Sistema"
+  },
+  "Metadata": {
+    "title": "AEO/GEO Auditor",
+    "description": "Auditá cómo los asistentes de IA perciben tu marca y obtené un puntaje de visibilidad accionable."
   },
   "Home": {
     "title": "Descubrí cómo te ve la IA",

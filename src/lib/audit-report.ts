@@ -8,7 +8,13 @@
  */
 
 import { DIMENSION_WEIGHTS } from '@/server/audit/scoring';
-import type { AuditPrompt, AuditResult, AuditScore, DimensionScores, EngineRun } from '@/server/audit/types';
+import type {
+  AuditPrompt,
+  AuditResult,
+  AuditScore,
+  DimensionScores,
+  EngineRun,
+} from '@/server/audit/types';
 
 /** Tramos del score, alineados con los cortes de color. */
 export type ScoreTier = 'high' | 'mid' | 'low';
@@ -64,7 +70,11 @@ export function deriveRecommendations(score: AuditScore): Recommendation[] {
   return DIMENSIONS.filter((dimension) => score.dimensions[dimension] < RECOMMENDATION_THRESHOLD)
     .map((dimension) => {
       const value = score.dimensions[dimension];
-      return { dimension, tier: scoreTier(value), impact: (100 - value) * DIMENSION_WEIGHTS[dimension] };
+      return {
+        dimension,
+        tier: scoreTier(value),
+        impact: (100 - value) * DIMENSION_WEIGHTS[dimension],
+      };
     })
     .sort((a, b) => b.impact - a.impact)
     .slice(0, MAX_RECOMMENDATIONS)

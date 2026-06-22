@@ -29,25 +29,49 @@ const requestSchema = z.object({
   locale: z.enum(['es', 'en']).default('es'),
 });
 
+type RequestLocale = z.infer<typeof requestSchema>['locale'];
+
+/**
+ * Mensajes de error del endpoint, localizados por idioma. No usamos next-intl acá (es un route
+ * handler fuera del segmento `[locale]`): un record por locale alcanza y mantiene el handler simple.
+ */
+const ERROR_MESSAGES = {
+  badRequest: {
+    es: 'Body inválido: se espera { brand: string, locale?: "es" | "en" }',
+    en: 'Invalid body: expected { brand: string, locale?: "es" | "en" }',
+  },
+  noEngines: {
+    es: 'No hay motores de IA configurados en el servidor',
+    en: 'No AI engines are configured on the server',
+  },
+} satisfies Record<string, Record<RequestLocale, string>>;
+
+/** Locale pedido de forma tolerante: aunque el resto del body sea inválido, respetamos el idioma. */
+function pickLocale(body: unknown): RequestLocale {
+  if (typeof body === 'object' && body !== null && 'locale' in body) {
+    const value = (body as { locale: unknown }).locale;
+    if (value === 'es' || value === 'en') return value;
+  }
+  return 'es';
+}
+
 export async function POST(request: Request): Promise<Response> {
   // 1. Validar el body. Un input inválido se rechaza antes de abrir el stream.
-  let parsed: z.infer<typeof requestSchema>;
+  let body: unknown = null;
   try {
-    parsed = requestSchema.parse(await request.json());
+    body = await request.json();
   } catch {
-    return Response.json(
-      { error: 'Body inválido: se espera { brand: string, locale?: "es" | "en" }' },
-      { status: 400 },
-    );
+    // body inválido/ausente: queda en `null` y el schema lo rechaza abajo.
   }
-  const { brand, locale } = parsed;
+  const parsed = requestSchema.safeParse(body);
+  if (!parsed.success) {
+    return Response.json({ error: ERROR_MESSAGES.badRequest[pickLocale(body)] }, { status: 400 });
+  }
+  const { brand, locale } = parsed.data;
 
   // 2. Sin motores configurados no hay nada que auditar: 503 sin abrir el stream.
   if (!hasAnyEngine()) {
-    return Response.json(
-      { error: 'No hay motores de IA configurados en el servidor' },
-      { status: 503 },
-    );
+    return Response.json({ error: ERROR_MESSAGES.noEngines[locale] }, { status: 503 });
   }
 
   // 3. Stream SSE: cada evento de progreso del orquestador se reenvía 1:1.

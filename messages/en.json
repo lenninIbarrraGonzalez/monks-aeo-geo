@@ -3,7 +3,15 @@
     "appName": "AEO/GEO Auditor",
     "languageSwitcher": "Language",
     "spanish": "Spanish",
-    "english": "English"
+    "english": "English",
+    "themeSwitcher": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System"
+  },
+  "Metadata": {
+    "title": "AEO/GEO Auditor",
+    "description": "Audit how AI assistants perceive your brand and get an actionable visibility score."
   },
   "Home": {
     "title": "Discover how AI sees you",
