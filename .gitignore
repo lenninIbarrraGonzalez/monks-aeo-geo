@@ -12,6 +12,9 @@
 /coverage
 # Artefactos transitorios de Playwright MCP (snapshots/console de verificación e2e)
 /.playwright-mcp
+# Reportes y resultados de los E2E de Playwright
+/playwright-report
+/test-results
 
 # Next.js
 /.next/
