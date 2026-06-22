@@ -2,7 +2,7 @@ import 'server-only';
 
 import type { Engine } from '@/server/engines';
 import type { EngineId } from '@/types/engine';
-import { generateStructured } from './json';
+import { generateStructuredWithFallback } from './json';
 import { judgeOutputSchema } from './schemas';
 import type { AuditPrompt, BrandProfile, JudgeSignals, Locale } from './types';
 
@@ -107,17 +107,19 @@ function buildUser(
 /**
  * Juzga las respuestas de todos los motores a un prompt. Devuelve un mapa `engineId → señales`.
  *
- * Los motores que respondieron pero que el juez omitió quedan con {@link ABSENT_SIGNALS}. Si la
- * llamada al juez falla de forma dura (tras los reintentos de `generateStructured`), propaga el
- * error: el orquestador lo marca como fallo de la celda para EXCLUIRLA del scoring, en vez de
- * contabilizarla como una ausencia real de la marca.
+ * Los motores que respondieron pero que el juez omitió quedan con {@link ABSENT_SIGNALS}. Se
+ * prueban los `analysts` en orden (fallback): si el primero está caído se pasa al siguiente, y
+ * `onUnavailable` avisa al orquestador para no reintentar ese analista en prompts posteriores. Si
+ * NINGÚN analista logra juzgar, propaga el error: el orquestador marca la celda como fallo para
+ * EXCLUIRLA del scoring, en vez de contabilizarla como una ausencia real de la marca.
  */
 export async function judgePrompt(
   prompt: AuditPrompt,
   answers: AnswerToJudge[],
   profile: BrandProfile,
-  analyst: Engine,
+  analysts: Engine[],
   locale: Locale,
+  onUnavailable?: (engineId: EngineId) => void,
 ): Promise<Map<EngineId, JudgeSignals>> {
   const result = new Map<EngineId, JudgeSignals>();
   for (const a of answers) result.set(a.engineId, { ...ABSENT_SIGNALS });
@@ -128,12 +130,16 @@ export async function judgePrompt(
   // mayúsculas para no perder silenciosamente las señales de un motor que sí respondió.
   const byLowerId = new Map(answers.map((a) => [a.engineId.toLowerCase(), a.engineId]));
 
-  const output = await generateStructured(analyst, {
-    schema: judgeOutputSchema,
-    system: SYSTEM[locale],
-    user: buildUser(prompt, answers, profile, locale),
-    temperature: 0,
-  });
+  const { data: output } = await generateStructuredWithFallback(
+    analysts,
+    {
+      schema: judgeOutputSchema,
+      system: SYSTEM[locale],
+      user: buildUser(prompt, answers, profile, locale),
+      temperature: 0,
+    },
+    onUnavailable,
+  );
 
   for (const entry of output.results) {
     const engineId = byLowerId.get(entry.engine.trim().toLowerCase());

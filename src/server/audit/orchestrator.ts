@@ -31,8 +31,11 @@ export interface RunAuditOptions {
   locale?: Locale;
   /** Motores de ejecución; por defecto todos los disponibles en el entorno. */
   engines?: Engine[];
-  /** Motor analista para perfil y juez; por defecto Gemini si está, si no el primero. */
-  analyst?: Engine;
+  /**
+   * Analistas para perfil y juez, en orden de preferencia (fallback). Por defecto Gemini primero
+   * (si está) y el resto detrás: si el preferido cae, la auditoría sigue con el siguiente.
+   */
+  analysts?: Engine[];
   /** Tope de tokens por respuesta de motor (default 800). */
   maxTokens?: number;
   /** Callback de progreso (puede ser async). */
@@ -43,9 +46,13 @@ export interface RunAuditOptions {
 
 const DEFAULT_MAX_TOKENS = 800;
 
-/** Elige el motor analista: prefiere Gemini (estable para análisis), si no el primero. */
-function pickAnalyst(engines: Engine[]): Engine {
-  return engines.find((e) => e.id === 'gemini') ?? engines[0]!;
+/**
+ * Ordena los analistas por preferencia: Gemini primero (estable para análisis) y el resto detrás.
+ * El orden define la cadena de fallback para perfil y juez.
+ */
+function pickAnalysts(engines: Engine[]): Engine[] {
+  const gemini = engines.find((e) => e.id === 'gemini');
+  return gemini ? [gemini, ...engines.filter((e) => e !== gemini)] : [...engines];
 }
 
 /**
@@ -64,17 +71,30 @@ export async function runAudit(input: string, options: RunAuditOptions = {}): Pr
   if (engines.length === 0) {
     throw new EngineError('No hay motores de IA configurados', { kind: 'auth' });
   }
-  const analyst = options.analyst ?? pickAnalyst(engines);
+  const analysts = options.analysts ?? pickAnalysts(engines);
+
+  // Un analista que cae (sin cuota, auth, timeout) se marca y se descarta del resto de la
+  // auditoría: así Gemini sin cuota se intenta UNA vez (perfil) en vez de una por cada prompt del
+  // juez — la diferencia entre entrar o no en el `maxDuration` de Vercel cuando el preferido muere.
+  const deadAnalysts = new Set<EngineId>();
+  const markAnalystUnavailable = (id: EngineId): void => {
+    deadAnalysts.add(id);
+  };
+  const liveAnalysts = (): Engine[] => {
+    const live = analysts.filter((e) => !deadAnalysts.has(e.id));
+    // Si todos quedaron marcados, igual reintentamos con la cadena completa (último recurso).
+    return live.length > 0 ? live : analysts;
+  };
 
   const emit: ProgressHandler = async (event) => {
     if (onProgress) await onProgress(event);
   };
 
   // 1. Perfil de referencia.
-  const profile = await detectBrandProfile(input, analyst, locale);
+  const profile = await detectBrandProfile(input, liveAnalysts(), locale, markAnalystUnavailable);
   await emit({ type: 'profile', profile });
 
-  // 2. Prompts (las 5 intenciones).
+  // 2. Prompts (las tres intenciones de alto valor).
   const prompts = buildPrompts(profile, locale);
   await emit({ type: 'prompts', prompts });
 
@@ -110,7 +130,14 @@ export async function runAudit(input: string, options: RunAuditOptions = {}): Pr
     let signalsByEngine: Map<EngineId, JudgeSignals> = new Map();
     let judgeError: string | undefined;
     try {
-      signalsByEngine = await judgePrompt(prompt, toJudge, profile, analyst, locale);
+      signalsByEngine = await judgePrompt(
+        prompt,
+        toJudge,
+        profile,
+        liveAnalysts(),
+        locale,
+        markAnalystUnavailable,
+      );
     } catch (cause) {
       judgeError = cause instanceof Error ? `juez: ${cause.message}` : 'fallo del juez';
     }

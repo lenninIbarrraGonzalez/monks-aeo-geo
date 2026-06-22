@@ -3,7 +3,7 @@ import 'server-only';
 import type { z } from 'zod';
 import type { Engine } from '@/server/engines';
 import { EngineError, isEngineError } from '@/server/engines';
-import type { ChatMessage } from '@/types/engine';
+import type { ChatMessage, EngineId } from '@/types/engine';
 
 /**
  * Llamadas LLM con salida estructurada validada con Zod.
@@ -137,6 +137,43 @@ export async function generateStructured<T>(
     kind: 'invalid_response',
     engineId: engine.id,
   });
+}
+
+/** Resultado de una llamada estructurada con fallback: el dato y el motor que lo produjo. */
+export interface StructuredOutcome<T> {
+  data: T;
+  engine: Engine;
+}
+
+/**
+ * Como {@link generateStructured} pero con fallback entre motores: prueba `engines` en orden y
+ * devuelve la primera salida válida junto al motor que la produjo.
+ *
+ * Cuando un motor falla por estar **caído** (rate-limit, auth, timeout, red, 5xx) lo reporta vía
+ * `onUnavailable` para que el orquestador deje de usarlo en las llamadas siguientes de la misma
+ * auditoría: así un analista sin cuota se intenta UNA vez, no una por prompt. Un JSON inválido
+ * (`invalid_response`) NO marca al motor como caído: es calidad del modelo, no del proveedor. Si
+ * todos fallan, propaga el último error (preservando su `kind`).
+ */
+export async function generateStructuredWithFallback<T>(
+  engines: Engine[],
+  request: StructuredRequest<T>,
+  onUnavailable?: (engineId: EngineId) => void,
+): Promise<StructuredOutcome<T>> {
+  let lastError: unknown;
+  for (const engine of engines) {
+    try {
+      const data = await generateStructured(engine, request);
+      return { data, engine };
+    } catch (error) {
+      lastError = error;
+      const modelQualityIssue = isEngineError(error) && error.kind === 'invalid_response';
+      if (!modelQualityIssue) onUnavailable?.(engine.id);
+    }
+  }
+  throw (
+    lastError ?? new EngineError('No hay motores analistas disponibles', { kind: 'unknown' })
+  );
 }
 
 /** Re-export para callers que quieran distinguir errores del motor. */

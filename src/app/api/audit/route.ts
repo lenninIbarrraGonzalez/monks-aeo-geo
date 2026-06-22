@@ -19,8 +19,8 @@ import { hasAnyEngine, isEngineError } from '@/server/engines';
 export const runtime = 'nodejs';
 // La auditoría depende de llamadas externas en vivo: nunca cachear la respuesta.
 export const dynamic = 'force-dynamic';
-// El pipeline real tarda decenas de segundos; subimos el tope por defecto.
-// (Fase 9: validar contra los límites del plan de Vercel.)
+// 60 s es el tope del plan Hobby de Vercel (con Fluid Compute). Una auditoría real (3 prompts ×
+// 2 motores + juez) corre en ~20 s, así que entra con holgura; dejamos el tope en su máximo.
 export const maxDuration = 60;
 
 /** Body esperado: `brand` es nombre de marca o URL; `locale` sigue al selector de la UI. */

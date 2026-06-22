@@ -48,7 +48,7 @@ describe('judgePrompt', () => {
       }),
     ]);
 
-    const result = await judgePrompt(prompt, answers, profile, judge, 'es');
+    const result = await judgePrompt(prompt, answers, profile, [judge], 'es');
 
     expect(result.get('gemini')).toEqual({
       mentioned: true,
@@ -75,7 +75,7 @@ describe('judgePrompt', () => {
         ],
       }),
     ]);
-    const result = await judgePrompt(prompt, [answers[0]!], profile, judge, 'es');
+    const result = await judgePrompt(prompt, [answers[0]!], profile, [judge], 'es');
     const g = result.get('gemini')!;
     expect(g.accuracy).toBe(0);
     expect(g.competitivePosition).toBeNull();
@@ -96,7 +96,7 @@ describe('judgePrompt', () => {
         ],
       }),
     ]);
-    const result = await judgePrompt(prompt, answers, profile, judge, 'es');
+    const result = await judgePrompt(prompt, answers, profile, [judge], 'es');
     expect(result.get('groq')).toEqual({
       mentioned: false,
       accuracy: 0,
@@ -121,18 +121,51 @@ describe('judgePrompt', () => {
         ],
       }),
     ]);
-    const result = await judgePrompt(prompt, [answers[0]!], profile, judge, 'es');
+    const result = await judgePrompt(prompt, [answers[0]!], profile, [judge], 'es');
     expect(result.get('gemini')?.mentioned).toBe(true);
   });
 
   it('propaga el error si el juez falla de forma dura', async () => {
     await expect(
-      judgePrompt(prompt, answers, profile, throwingEngine('gemini'), 'es'),
+      judgePrompt(prompt, answers, profile, [throwingEngine('gemini')], 'es'),
     ).rejects.toThrow();
   });
 
   it('sin respuestas devuelve un mapa vacío sin llamar al juez', async () => {
-    const result = await judgePrompt(prompt, [], profile, throwingEngine('gemini'), 'es');
+    const result = await judgePrompt(prompt, [], profile, [throwingEngine('gemini')], 'es');
     expect(result.size).toBe(0);
+  });
+
+  it('cae al segundo analista cuando el primero falla y avisa cuál cayó', async () => {
+    const fallbackJudge = fakeEngine(
+      [
+        JSON.stringify({
+          results: [
+            {
+              engine: 'gemini',
+              mentioned: true,
+              accuracy: 1,
+              sentiment: 'positive',
+              competitivePosition: 1,
+              citedSource: true,
+            },
+          ],
+        }),
+      ],
+      'groq',
+    );
+    const unavailable: string[] = [];
+
+    const result = await judgePrompt(
+      prompt,
+      [answers[0]!],
+      profile,
+      [throwingEngine('gemini'), fallbackJudge],
+      'es',
+      (id) => unavailable.push(id),
+    );
+
+    expect(result.get('gemini')?.mentioned).toBe(true);
+    expect(unavailable).toContain('gemini');
   });
 });

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { runAudit } from '@/server/audit/orchestrator';
 import type { AuditProgress } from '@/server/audit/types';
-import { isEngineError } from '@/server/engines';
+import { EngineError, isEngineError } from '@/server/engines';
 import type { Engine } from '@/server/engines';
 import { fakeEngine, throwingEngine } from './_fakes';
 
@@ -63,16 +63,16 @@ describe('runAudit', () => {
 
     const result = await runAudit('Notion', {
       engines: [gemini, groq],
-      analyst: analyst(),
+      analysts: [analyst()],
       locale: 'es',
       onProgress: (e) => {
         events.push(e.type);
       },
     });
 
-    // 6 prompts (incluye vs porque hay competidor) × 2 motores = 12 runs.
-    expect(result.prompts).toHaveLength(6);
-    expect(result.runs).toHaveLength(12);
+    // 3 prompts × 2 motores = 6 runs.
+    expect(result.prompts).toHaveLength(3);
+    expect(result.runs).toHaveLength(6);
     expect(result.profile.category).toBe('software de notas');
     expect(result.enginesUsed.map((e) => e.id)).toEqual(['gemini', 'groq']);
     expect(result.score.overall).toBeGreaterThan(0);
@@ -92,7 +92,7 @@ describe('runAudit', () => {
 
     const result = await runAudit('Notion', {
       engines: [gemini, groq],
-      analyst: analyst(),
+      analysts: [analyst()],
     });
 
     const groqRuns = result.runs.filter((r) => r.engineId === 'groq');
@@ -109,7 +109,7 @@ describe('runAudit', () => {
 
     const result = await runAudit('Notion', {
       engines: [gemini, groq],
-      analyst: analystFailingJudge(),
+      analysts: [analystFailingJudge()],
     });
 
     // Los motores respondieron, pero el juez falló en cada prompt: todas las celdas con error.
@@ -117,6 +117,33 @@ describe('runAudit', () => {
     expect(result.runs.every((r) => r.answer.length > 0)).toBe(true);
     // Sin celdas válidas, el score es 0 pero la auditoría no rompe.
     expect(result.score.overall).toBe(0);
+  });
+
+  it('poda al analista caído: lo intenta una vez y juzga con el fallback', async () => {
+    let geminiAnalystCalls = 0;
+    const deadGemini: Engine = {
+      id: 'gemini',
+      label: 'GEMINI',
+      model: 'm',
+      async generate() {
+        geminiAnalystCalls += 1;
+        throw new EngineError('429', { kind: 'rate_limit', engineId: 'gemini' });
+      },
+    };
+    const groqAnalyst = fakeEngine([profileJSON, judgeJSON], 'groq');
+    const exec = fakeEngine(['Roku es una plataforma de streaming.'], 'groq');
+
+    const result = await runAudit('Roku', {
+      engines: [exec],
+      analysts: [deadGemini, groqAnalyst],
+    });
+
+    // Gemini sin cuota se intentó SOLO en el perfil (1 vez), no una por cada prompt del juez:
+    // es la poda que mantiene la auditoría dentro del presupuesto de tiempo.
+    expect(geminiAnalystCalls).toBe(1);
+    expect(result.profile.degraded).toBeUndefined();
+    expect(result.profile.detectedBy).toBe('groq');
+    expect(result.score.overall).toBeGreaterThan(0);
   });
 
   it('lanza EngineError si no hay motores disponibles', async () => {

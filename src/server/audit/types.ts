@@ -13,15 +13,10 @@ import type { EngineId } from '@/types/engine';
 export type Locale = 'es' | 'en';
 
 /**
- * Las cinco intenciones de búsqueda que un cliente real le plantearía a una IA.
+ * Las intenciones de búsqueda que un cliente real le plantearía a una IA.
  * `categorical` es la única que NO nombra la marca: mide si emerge sola en su categoría.
  */
-export type PromptIntent =
-  | 'definitional'
-  | 'evaluative'
-  | 'comparative'
-  | 'categorical'
-  | 'recommendation';
+export type PromptIntent = 'definitional' | 'comparative' | 'categorical';
 
 /** Perfil canónico de la marca, auto-detectado por IA. Sirve de referencia para medir exactitud. */
 export interface BrandProfile {

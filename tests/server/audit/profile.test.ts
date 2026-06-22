@@ -27,7 +27,7 @@ describe('detectBrandProfile', () => {
       }),
     ]);
 
-    const profile = await detectBrandProfile('Notion', engine, 'es');
+    const profile = await detectBrandProfile('Notion', [engine], 'es');
 
     expect(profile.name).toBe('Notion');
     expect(profile.category).toBe('software de notas');
@@ -41,20 +41,40 @@ describe('detectBrandProfile', () => {
     const engine = fakeEngine([
       JSON.stringify({ category: 'c', description: 'd', competitors: [] }),
     ]);
-    const profile = await detectBrandProfile('https://acme.com', engine, 'es');
+    const profile = await detectBrandProfile('https://acme.com', [engine], 'es');
     expect(profile.url).toBe('https://acme.com');
   });
 
   it('degrada con un perfil mínimo si el motor falla (error no-auth)', async () => {
-    const profile = await detectBrandProfile('MarcaInventada', throwingEngine('gemini'), 'es');
+    const profile = await detectBrandProfile('MarcaInventada', [throwingEngine('gemini')], 'es');
     expect(profile.degraded).toBe(true);
     expect(profile.competitors).toEqual([]);
     expect(profile.name).toBe('MarcaInventada');
   });
 
   it('propaga el error de autenticación en vez de degradar (config rota)', async () => {
-    await expect(detectBrandProfile('Notion', authFailingEngine(), 'es')).rejects.toMatchObject({
+    await expect(detectBrandProfile('Notion', [authFailingEngine()], 'es')).rejects.toMatchObject({
       kind: 'auth',
     });
+  });
+
+  it('cae al segundo analista cuando el primero falla y registra quién detectó', async () => {
+    const groq = fakeEngine(
+      [JSON.stringify({ category: 'streaming', description: 'Plataforma de TV.', competitors: [] })],
+      'groq',
+    );
+    const unavailable: string[] = [];
+
+    const profile = await detectBrandProfile(
+      'Roku',
+      [throwingEngine('gemini'), groq],
+      'es',
+      (id) => unavailable.push(id),
+    );
+
+    expect(profile.degraded).toBeUndefined();
+    expect(profile.category).toBe('streaming');
+    expect(profile.detectedBy).toBe('groq');
+    expect(unavailable).toContain('gemini');
   });
 });

@@ -2,7 +2,8 @@ import 'server-only';
 
 import type { Engine } from '@/server/engines';
 import { isEngineError } from '@/server/engines';
-import { generateStructured } from './json';
+import type { EngineId } from '@/types/engine';
+import { generateStructuredWithFallback } from './json';
 import { profileOutputSchema } from './schemas';
 import type { BrandProfile, Locale } from './types';
 
@@ -66,24 +67,32 @@ const FALLBACK_DESCRIPTION: Record<Locale, string> = {
 };
 
 /**
- * Detecta el perfil de `input` (nombre o URL) usando `analyst`.
- * Nunca lanza: ante error devuelve un perfil mínimo marcado como `degraded`.
+ * Detecta el perfil de `input` (nombre o URL) probando los `analysts` en orden (fallback).
+ *
+ * El primero que responda gana y queda registrado en `detectedBy`. Nunca lanza por un motor
+ * caído: ante error devuelve un perfil mínimo marcado como `degraded`. `onUnavailable` permite al
+ * orquestador enterarse de qué analista cayó para no reintentarlo en el juez.
  */
 export async function detectBrandProfile(
   input: string,
-  analyst: Engine,
+  analysts: Engine[],
   locale: Locale,
+  onUnavailable?: (engineId: EngineId) => void,
 ): Promise<BrandProfile> {
   const name = input.trim();
   const url = looksLikeUrl(name) ? name : undefined;
 
   try {
-    const output = await generateStructured(analyst, {
-      schema: profileOutputSchema,
-      system: SYSTEM[locale],
-      user: buildUser(name, locale),
-      temperature: 0,
-    });
+    const { data: output, engine } = await generateStructuredWithFallback(
+      analysts,
+      {
+        schema: profileOutputSchema,
+        system: SYSTEM[locale],
+        user: buildUser(name, locale),
+        temperature: 0,
+      },
+      onUnavailable,
+    );
 
     return {
       name,
@@ -91,12 +100,12 @@ export async function detectBrandProfile(
       category: output.category.trim(),
       description: output.description.trim(),
       competitors: output.competitors.map((c) => c.trim()).filter((c) => c.length > 0),
-      detectedBy: analyst.id,
+      detectedBy: engine.id,
     };
   } catch (error) {
-    // Una falla de autenticación significa que el analista está mal configurado: toda la
-    // auditoría sería ruido. Se propaga para que el llamador lo reporte como error de config,
-    // en vez de devolver un perfil degradado que parezca un resultado legítimo.
+    // Si NINGÚN analista pudo y el último fallo es de autenticación, todos están mal configurados:
+    // toda la auditoría sería ruido. Se propaga para que el llamador lo reporte como error de
+    // config, en vez de devolver un perfil degradado que parezca un resultado legítimo.
     if (isEngineError(error) && error.kind === 'auth') throw error;
     return {
       name,
@@ -104,7 +113,7 @@ export async function detectBrandProfile(
       category: FALLBACK_CATEGORY[locale],
       description: FALLBACK_DESCRIPTION[locale],
       competitors: [],
-      detectedBy: analyst.id,
+      detectedBy: analysts[0]?.id ?? 'gemini',
       degraded: true,
     };
   }
