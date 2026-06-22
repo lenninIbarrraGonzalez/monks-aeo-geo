@@ -47,6 +47,13 @@ export interface RunAuditOptions {
 const DEFAULT_MAX_TOKENS = 800;
 
 /**
+ * Tope de tokens para las llamadas a los analistas (perfil y juez). Su salida es JSON acotado
+ * (un objeto de perfil; un array con una entrada por motor), así que un cap holgado evita costo y
+ * latencia imprevisibles sin riesgo de truncar la respuesta.
+ */
+const ANALYST_MAX_TOKENS = 1024;
+
+/**
  * Ordena los analistas por preferencia: Gemini primero (estable para análisis) y el resto detrás.
  * El orden define la cadena de fallback para perfil y juez.
  */
@@ -90,8 +97,18 @@ export async function runAudit(input: string, options: RunAuditOptions = {}): Pr
     if (onProgress) await onProgress(event);
   };
 
+  // Opciones comunes de las llamadas a analistas: propagan la cancelación del cliente y acotan la
+  // salida. Sin esto, perfil/juez seguirían corriendo (y quemando cuota) tras un abort.
+  const analystOptions = { maxTokens: ANALYST_MAX_TOKENS, ...(signal && { signal }) };
+
   // 1. Perfil de referencia.
-  const profile = await detectBrandProfile(input, liveAnalysts(), locale, markAnalystUnavailable);
+  const profile = await detectBrandProfile(
+    input,
+    liveAnalysts(),
+    locale,
+    markAnalystUnavailable,
+    analystOptions,
+  );
   await emit({ type: 'profile', profile });
 
   // 2. Prompts (las tres intenciones de alto valor).
@@ -137,6 +154,7 @@ export async function runAudit(input: string, options: RunAuditOptions = {}): Pr
         liveAnalysts(),
         locale,
         markAnalystUnavailable,
+        analystOptions,
       );
     } catch (cause) {
       judgeError = cause instanceof Error ? `juez: ${cause.message}` : 'fallo del juez';

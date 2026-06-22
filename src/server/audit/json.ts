@@ -75,7 +75,17 @@ export interface StructuredRequest<T> {
   temperature?: number;
   maxTokens?: number;
   signal?: AbortSignal;
+  /** Idioma del mensaje de corrección en el reintento (default `es`). */
+  locale?: 'es' | 'en';
 }
+
+/** Mensaje de corrección reinyectado en el reintento cuando la salida no fue JSON válido. */
+const RETRY_INSTRUCTION: Record<'es' | 'en', (issue: string) => string> = {
+  es: (issue) =>
+    `Tu respuesta anterior no fue JSON válido para el formato pedido (${issue}). Devolvé SOLO el objeto JSON, sin texto adicional ni fences.`,
+  en: (issue) =>
+    `Your previous answer was not valid JSON for the requested format (${issue}). Reply with ONLY the JSON object, no extra text or fences.`,
+};
 
 /**
  * Genera y valida una salida estructurada de `engine`. Reintenta una vez ante JSON inválido o
@@ -85,7 +95,7 @@ export async function generateStructured<T>(
   engine: Engine,
   request: StructuredRequest<T>,
 ): Promise<T> {
-  const { schema, system, user, temperature, maxTokens, signal } = request;
+  const { schema, system, user, temperature, maxTokens, signal, locale = 'es' } = request;
 
   const baseMessages: ChatMessage[] = [
     { role: 'system', content: system },
@@ -102,7 +112,7 @@ export async function generateStructured<T>(
             ...baseMessages,
             {
               role: 'user',
-              content: `Tu respuesta anterior no fue JSON válido para el formato pedido (${lastIssue}). Devolvé SOLO el objeto JSON, sin texto adicional ni fences.`,
+              content: RETRY_INSTRUCTION[locale](lastIssue),
             },
           ];
 
@@ -171,9 +181,7 @@ export async function generateStructuredWithFallback<T>(
       if (!modelQualityIssue) onUnavailable?.(engine.id);
     }
   }
-  throw (
-    lastError ?? new EngineError('No hay motores analistas disponibles', { kind: 'unknown' })
-  );
+  throw lastError ?? new EngineError('No hay motores analistas disponibles', { kind: 'unknown' });
 }
 
 /** Re-export para callers que quieran distinguir errores del motor. */

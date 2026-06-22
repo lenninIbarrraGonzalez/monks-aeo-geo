@@ -4,7 +4,7 @@ import type { Engine } from '@/server/engines';
 import type { EngineId } from '@/types/engine';
 import { generateStructuredWithFallback } from './json';
 import { judgeOutputSchema } from './schemas';
-import type { AuditPrompt, BrandProfile, JudgeSignals, Locale } from './types';
+import type { AnalystCallOptions, AuditPrompt, BrandProfile, JudgeSignals, Locale } from './types';
 
 /**
  * LLM-as-judge: una sola llamada analiza juntas las respuestas de todos los motores a un prompt.
@@ -120,6 +120,7 @@ export async function judgePrompt(
   analysts: Engine[],
   locale: Locale,
   onUnavailable?: (engineId: EngineId) => void,
+  options: AnalystCallOptions = {},
 ): Promise<Map<EngineId, JudgeSignals>> {
   const result = new Map<EngineId, JudgeSignals>();
   for (const a of answers) result.set(a.engineId, { ...ABSENT_SIGNALS });
@@ -137,6 +138,9 @@ export async function judgePrompt(
       system: SYSTEM[locale],
       user: buildUser(prompt, answers, profile, locale),
       temperature: 0,
+      locale,
+      ...(options.signal && { signal: options.signal }),
+      ...(options.maxTokens !== undefined && { maxTokens: options.maxTokens }),
     },
     onUnavailable,
   );

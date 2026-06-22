@@ -179,38 +179,7 @@ export function AuditDashboard({ result, onNewAudit }: AuditDashboardProps) {
           <CardTitle className="text-base">{t('recommendationsTitle')}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
-          {(() => {
-            const recommendations = deriveRecommendations(score);
-            if (recommendations.length === 0) {
-              return (
-                <p className="text-muted-foreground text-sm">{t('recommendationsPositive')}</p>
-              );
-            }
-            return (
-              <ul className="flex flex-col gap-3">
-                {recommendations.map(({ dimension, tier }) => (
-                  <li key={dimension} className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={cn(
-                          'rounded-full border px-2 py-0.5 text-xs font-medium',
-                          tier === 'low'
-                            ? 'border-destructive/40 text-destructive'
-                            : 'border-amber-500/40 text-amber-600 dark:text-amber-400',
-                        )}
-                      >
-                        {t(`severity.${tier}`)}
-                      </span>
-                      <span className="text-sm font-medium">{t(`dimensions.${dimension}`)}</span>
-                    </div>
-                    <p className="text-muted-foreground text-sm">
-                      {t(`recommendation.${dimension}`)}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            );
-          })()}
+          <RecommendationsList score={score} />
         </CardContent>
       </Card>
 
@@ -233,12 +202,54 @@ export function AuditDashboard({ result, onNewAudit }: AuditDashboardProps) {
 /** Barra de progreso 0–100 con color por tramo (patrón compartido del reporte). */
 function ScoreBar({ value }: { value: number }) {
   return (
-    <div className="bg-muted h-2 overflow-hidden rounded-full">
+    <div
+      className="bg-muted h-2 overflow-hidden rounded-full"
+      role="progressbar"
+      aria-valuenow={value}
+      aria-valuemin={0}
+      aria-valuemax={100}
+    >
       <div
         className={cn('h-full rounded-full transition-all', barColor(value))}
         style={{ width: `${value}%` }}
       />
     </div>
+  );
+}
+
+/**
+ * Lista de recomendaciones AEO/GEO derivadas del score. Si no hay debilidades por debajo del
+ * umbral, muestra un mensaje positivo en vez de una lista vacía.
+ */
+function RecommendationsList({ score }: { score: AuditResult['score'] }) {
+  const t = useTranslations('Audit.dashboard');
+  const recommendations = deriveRecommendations(score);
+
+  if (recommendations.length === 0) {
+    return <p className="text-muted-foreground text-sm">{t('recommendationsPositive')}</p>;
+  }
+
+  return (
+    <ul className="flex flex-col gap-3">
+      {recommendations.map(({ dimension, tier }) => (
+        <li key={dimension} className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <span
+              className={cn(
+                'rounded-full border px-2 py-0.5 text-xs font-medium',
+                tier === 'low'
+                  ? 'border-destructive/40 text-destructive'
+                  : 'border-amber-500/40 text-amber-600 dark:text-amber-400',
+              )}
+            >
+              {t(`severity.${tier}`)}
+            </span>
+            <span className="text-sm font-medium">{t(`dimensions.${dimension}`)}</span>
+          </div>
+          <p className="text-muted-foreground text-sm">{t(`recommendation.${dimension}`)}</p>
+        </li>
+      ))}
+    </ul>
   );
 }
 

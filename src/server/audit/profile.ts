@@ -5,7 +5,7 @@ import { isEngineError } from '@/server/engines';
 import type { EngineId } from '@/types/engine';
 import { generateStructuredWithFallback } from './json';
 import { profileOutputSchema } from './schemas';
-import type { BrandProfile, Locale } from './types';
+import type { AnalystCallOptions, BrandProfile, Locale } from './types';
 
 /**
  * Auto-detección del perfil de la marca (1 llamada LLM).
@@ -78,6 +78,7 @@ export async function detectBrandProfile(
   analysts: Engine[],
   locale: Locale,
   onUnavailable?: (engineId: EngineId) => void,
+  options: AnalystCallOptions = {},
 ): Promise<BrandProfile> {
   const name = input.trim();
   const url = looksLikeUrl(name) ? name : undefined;
@@ -90,6 +91,9 @@ export async function detectBrandProfile(
         system: SYSTEM[locale],
         user: buildUser(name, locale),
         temperature: 0,
+        locale,
+        ...(options.signal && { signal: options.signal }),
+        ...(options.maxTokens !== undefined && { maxTokens: options.maxTokens }),
       },
       onUnavailable,
     );

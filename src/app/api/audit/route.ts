@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { runAudit } from '@/server/audit';
 import { formatSse, SSE_HEADERS, type AuditStreamEvent } from '@/server/audit/sse';
 import { hasAnyEngine, isEngineError } from '@/server/engines';
+import { createRateLimiter } from '@/server/rate-limit';
 
 /**
  * Endpoint de auditoría AEO/GEO con progreso en vivo (Server-Sent Events).
@@ -44,7 +45,39 @@ const ERROR_MESSAGES = {
     es: 'No hay motores de IA configurados en el servidor',
     en: 'No AI engines are configured on the server',
   },
+  rateLimited: {
+    es: 'Demasiadas auditorías en poco tiempo. Esperá un momento y reintentá.',
+    en: 'Too many audits in a short time. Please wait a moment and retry.',
+  },
 } satisfies Record<string, Record<RequestLocale, string>>;
+
+/**
+ * Rate-limiter del endpoint: cada IP puede disparar pocas auditorías por ventana, porque cada una
+ * cuesta varias llamadas LLM. Vive a nivel de módulo para sobrevivir entre requests de la misma
+ * instancia serverless. Para producción multi-instancia, sustituir por un store compartido.
+ */
+const RATE_LIMIT = 5;
+const RATE_WINDOW_MS = 60_000;
+const rateLimiter = createRateLimiter({ limit: RATE_LIMIT, windowMs: RATE_WINDOW_MS });
+
+/** Deriva una clave de cliente desde los headers de proxy; cae a `unknown` si no hay IP. */
+function clientKey(request: Request): string {
+  const forwarded = request.headers.get('x-forwarded-for');
+  if (forwarded) return forwarded.split(',')[0]!.trim();
+  return request.headers.get('x-real-ip')?.trim() || 'unknown';
+}
+
+/**
+ * Loguea un fallo de auditoría en el servidor con su contexto (kind + motor). El detalle crudo
+ * —que puede incluir el cuerpo de error del proveedor— queda SOLO en los logs, nunca se filtra al
+ * cliente: a la UI viaja únicamente el `kind`, que ya tiene un mensaje localizado.
+ */
+function logAuditError(cause: unknown): void {
+  const kind = isEngineError(cause) ? cause.kind : 'unknown';
+  const engineId = isEngineError(cause) ? cause.engineId : undefined;
+  const detail = cause instanceof Error ? cause.message : String(cause);
+  console.error('[audit] error', { kind, engineId, detail });
+}
 
 /** Locale pedido de forma tolerante: aunque el resto del body sea inválido, respetamos el idioma. */
 function pickLocale(body: unknown): RequestLocale {
@@ -69,7 +102,17 @@ export async function POST(request: Request): Promise<Response> {
   }
   const { brand, locale } = parsed.data;
 
-  // 2. Sin motores configurados no hay nada que auditar: 503 sin abrir el stream.
+  // 2. Rate-limit por IP: la auditoría es cara (varias llamadas LLM), así que frenamos el abuso
+  // antes de abrir el stream. 429 con `Retry-After` para que el cliente sepa cuándo reintentar.
+  const limit = rateLimiter.check(clientKey(request));
+  if (!limit.allowed) {
+    return Response.json(
+      { error: ERROR_MESSAGES.rateLimited[locale] },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil(limit.retryAfterMs / 1000)) } },
+    );
+  }
+
+  // 3. Sin motores configurados no hay nada que auditar: 503 sin abrir el stream.
   if (!hasAnyEngine()) {
     return Response.json({ error: ERROR_MESSAGES.noEngines[locale] }, { status: 503 });
   }
@@ -102,9 +145,11 @@ export async function POST(request: Request): Promise<Response> {
         send({ type: 'done', result });
       } catch (cause) {
         // El error viaja como evento, no como throw: cortar el stream dejaría a la UI a ciegas.
+        logAuditError(cause);
         const kind = isEngineError(cause) ? cause.kind : 'unknown';
-        const message = cause instanceof Error ? cause.message : 'fallo de la auditoría';
-        send({ type: 'error', kind, message });
+        // Solo el `kind` cruza al cliente; la UI lo traduce. El detalle crudo del proveedor
+        // (que el `EngineError` arrastra) se queda en el log, no se filtra.
+        send({ type: 'error', kind, message: '' });
       } finally {
         if (!closed) {
           closed = true;

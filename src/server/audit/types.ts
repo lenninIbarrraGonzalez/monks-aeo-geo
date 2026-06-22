@@ -142,3 +142,14 @@ export type AuditProgress =
 
 /** Callback de progreso. Puede ser async; el orquestador lo espera. */
 export type ProgressHandler = (event: AuditProgress) => void | Promise<void>;
+
+/**
+ * Opciones de las llamadas a los analistas (perfil y juez): cancelación y tope de tokens.
+ * Permiten que el orquestador propague el `AbortSignal` del request y acote la salida del LLM.
+ */
+export interface AnalystCallOptions {
+  /** Señal de cancelación; aborta la llamada del analista si el cliente se va. */
+  signal?: AbortSignal;
+  /** Tope de tokens de la respuesta del analista. */
+  maxTokens?: number;
+}

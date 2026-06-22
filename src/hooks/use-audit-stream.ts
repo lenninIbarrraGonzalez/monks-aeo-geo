@@ -43,7 +43,7 @@ export interface AuditStreamState {
   error: AuditStreamError | null;
 }
 
-const initialState: AuditStreamState = {
+export const initialState: AuditStreamState = {
   status: 'idle',
   brand: '',
   profile: null,
@@ -165,7 +165,7 @@ async function consume(
 }
 
 /** Aplica un evento del stream al estado. Eventos desconocidos se ignoran (forward-compatible). */
-function applyEvent(state: AuditStreamState, event: AuditStreamEvent): AuditStreamState {
+export function applyEvent(state: AuditStreamState, event: AuditStreamEvent): AuditStreamState {
   switch (event.type) {
     case 'profile':
       return { ...state, profile: event.profile };
@@ -197,6 +197,7 @@ function applyEvent(state: AuditStreamState, event: AuditStreamEvent): AuditStre
 /** Mapea el status HTTP de una respuesta de error (sin stream) a un código que la UI entiende. */
 function statusToKind(status: number): AuditErrorCode {
   if (status === 503) return 'no_engines';
+  if (status === 429) return 'rate_limit';
   if (status === 400) return 'bad_request';
   return 'server';
 }
