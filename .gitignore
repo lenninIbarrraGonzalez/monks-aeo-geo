@@ -49,6 +49,14 @@ next-env.d.ts
 .idea/
 *.swp
 
+# Tooling local de agentes (no es código del proyecto)
+.atl/
+.gga
+
+# Artefactos de prueba manual (screenshots, capturas de auditorías en vivo)
+roku-audit-result.png
+*.audit-result.png
+
 # El ignore global del usuario (~/.config/git/ignore) excluye docs/ y .claude/.
 # En este repo esos paths se versionan a propósito (plan de trabajo, TOOLING, skills).
 !docs/
