@@ -1,21 +1,17 @@
 'use client';
 
-import { AlertTriangle, Check, Link2, Quote, X } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 
+import { CompetitiveSection } from '@/components/dashboard/competitive-section';
+import { EngineAnswer } from '@/components/dashboard/engine-answer';
+import { RecommendationsList } from '@/components/dashboard/recommendations-list';
+import { ScoreBar } from '@/components/dashboard/score-bar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  DIMENSIONS,
-  barColor,
-  deriveCompetitive,
-  deriveRecommendations,
-  groupRunsByPrompt,
-  scoreColor,
-  scoreTier,
-} from '@/lib/audit-report';
+import { DIMENSIONS, groupRunsByPrompt, scoreColor, scoreTier } from '@/lib/audit-report';
 import { cn } from '@/lib/utils';
-import type { AuditResult, EngineRun, Sentiment } from '@/server/audit/types';
+import type { AuditResult } from '@/server/audit/types';
 
 interface AuditDashboardProps {
   result: AuditResult;
@@ -196,204 +192,5 @@ export function AuditDashboard({ result, onNewAudit }: AuditDashboardProps) {
         </Button>
       </div>
     </section>
-  );
-}
-
-/** Barra de progreso 0–100 con color por tramo (patrón compartido del reporte). */
-function ScoreBar({ value }: { value: number }) {
-  return (
-    <div
-      className="bg-muted h-2 overflow-hidden rounded-full"
-      role="progressbar"
-      aria-valuenow={value}
-      aria-valuemin={0}
-      aria-valuemax={100}
-    >
-      <div
-        className={cn('h-full rounded-full transition-all', barColor(value))}
-        style={{ width: `${value}%` }}
-      />
-    </div>
-  );
-}
-
-/**
- * Lista de recomendaciones AEO/GEO derivadas del score. Si no hay debilidades por debajo del
- * umbral, muestra un mensaje positivo en vez de una lista vacía.
- */
-function RecommendationsList({ score }: { score: AuditResult['score'] }) {
-  const t = useTranslations('Audit.dashboard');
-  const recommendations = deriveRecommendations(score);
-
-  if (recommendations.length === 0) {
-    return <p className="text-muted-foreground text-sm">{t('recommendationsPositive')}</p>;
-  }
-
-  return (
-    <ul className="flex flex-col gap-3">
-      {recommendations.map(({ dimension, tier }) => (
-        <li key={dimension} className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <span
-              className={cn(
-                'rounded-full border px-2 py-0.5 text-xs font-medium',
-                tier === 'low'
-                  ? 'border-destructive/40 text-destructive'
-                  : 'border-amber-500/40 text-amber-600 dark:text-amber-400',
-              )}
-            >
-              {t(`severity.${tier}`)}
-            </span>
-            <span className="text-sm font-medium">{t(`dimensions.${dimension}`)}</span>
-          </div>
-          <p className="text-muted-foreground text-sm">{t(`recommendation.${dimension}`)}</p>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-/** Sección de posicionamiento competitivo, con estado vacío honesto si no hubo comparación. */
-function CompetitiveSection({
-  result,
-  delay,
-}: {
-  result: AuditResult;
-  delay?: React.CSSProperties;
-}) {
-  const t = useTranslations('Audit.dashboard');
-  const competitive = deriveCompetitive(result);
-  const score = Math.round(result.score.dimensions.competitive);
-
-  return (
-    <Card className="animate-fade-in" style={delay}>
-      <CardHeader>
-        <CardTitle className="text-base">{t('competitiveTitle')}</CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4 text-sm">
-        {competitive.hasData ? (
-          <>
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center justify-between">
-                <span>{t('dimensions.competitive')}</span>
-                <span className="text-muted-foreground tabular-nums">{score}</span>
-              </div>
-              <ScoreBar value={score} />
-            </div>
-            <p>{t('competitiveBest', { position: competitive.bestPosition ?? 0 })}</p>
-          </>
-        ) : (
-          <p className="text-muted-foreground">{t('competitiveEmpty')}</p>
-        )}
-
-        {competitive.competitors.length > 0 && (
-          <div className="flex flex-col gap-1">
-            <span className="text-muted-foreground text-xs">{t('competitiveCompetitors')}</span>
-            <div className="flex flex-wrap gap-2">
-              {competitive.competitors.map((competitor) => (
-                <span
-                  key={competitor}
-                  className="border-border rounded-full border px-2 py-0.5 text-xs"
-                >
-                  {competitor}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
-
-/** Respuesta textual de un motor para un prompt, con sus señales o su estado de error. */
-function EngineAnswer({ run }: { run: EngineRun }) {
-  const t = useTranslations('Audit.dashboard');
-  const hasAnswer = run.answer.trim().length > 0;
-  // El motor no respondió (falló o devolvió vacío): no hay nada que mostrar.
-  const engineFailed = !hasAnswer;
-  // El motor SÍ respondió, pero nuestro juez no pudo analizar la celda. Mostramos la respuesta
-  // (honestidad: el motor no falló) y avisamos que el análisis no está disponible, sin señales.
-  const analysisUnavailable = hasAnswer && Boolean(run.error);
-
-  return (
-    <div className="border-border/60 flex flex-col gap-2 rounded-lg border p-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium">{run.label}</span>
-        <span className="text-muted-foreground text-xs">{run.model}</span>
-        {!engineFailed && !analysisUnavailable && (
-          <>
-            <SentimentChip
-              sentiment={run.signals.sentiment}
-              label={t(`sentimentLabel.${run.signals.sentiment}`)}
-            />
-            <SignalChip
-              ok={run.signals.mentioned}
-              label={run.signals.mentioned ? t('mentioned') : t('notMentioned')}
-            />
-            {run.signals.citedSource && (
-              <span className="text-primary border-primary/40 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs">
-                <Link2 className="size-3" aria-hidden="true" />
-                {t('citedSource')}
-              </span>
-            )}
-          </>
-        )}
-      </div>
-      {engineFailed ? (
-        <p className="text-muted-foreground flex items-center gap-2 text-sm">
-          <X className="text-destructive size-4 shrink-0" aria-hidden="true" />
-          {t('cellFailed')}
-        </p>
-      ) : (
-        <>
-          <p className="text-muted-foreground flex gap-2 text-sm leading-relaxed whitespace-pre-wrap">
-            <Quote className="mt-0.5 size-4 shrink-0 opacity-50" aria-hidden="true" />
-            <span>{run.answer}</span>
-          </p>
-          {analysisUnavailable && (
-            <p className="text-muted-foreground flex items-center gap-2 text-xs">
-              <AlertTriangle className="size-3.5 shrink-0 text-amber-500" aria-hidden="true" />
-              {t('analysisUnavailable')}
-            </p>
-          )}
-        </>
-      )}
-    </div>
-  );
-}
-
-/** Color del chip de sentimiento según su valor. */
-function SentimentChip({ sentiment, label }: { sentiment: Sentiment; label: string }) {
-  return (
-    <span
-      className={cn(
-        'rounded-full border px-2 py-0.5 text-xs',
-        sentiment === 'positive' && 'border-emerald-500/40 text-emerald-600 dark:text-emerald-400',
-        sentiment === 'neutral' && 'border-border text-muted-foreground',
-        sentiment === 'negative' && 'border-destructive/40 text-destructive',
-      )}
-    >
-      {label}
-    </span>
-  );
-}
-
-/** Chip booleano (mención): tilde si sí, cruz si no. */
-function SignalChip({ ok, label }: { ok: boolean; label: string }) {
-  return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs',
-        ok ? 'border-primary/40 text-primary' : 'border-border text-muted-foreground',
-      )}
-    >
-      {ok ? (
-        <Check className="size-3" aria-hidden="true" />
-      ) : (
-        <X className="size-3" aria-hidden="true" />
-      )}
-      {label}
-    </span>
   );
 }

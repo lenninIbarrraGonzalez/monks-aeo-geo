@@ -93,9 +93,14 @@ function computeDimensions(
   const sentiment = average(mentioned.map((run) => SENTIMENT_SCORE[run.signals.sentiment]));
   const citation = average(mentioned.map((run) => (run.signals.citedSource ? 100 : 0)));
 
-  const positioned = valid.filter((run) => run.signals.competitivePosition !== null);
+  // Predicado de tipo: estrecha `competitivePosition` a `number` sin cast, para que el `map`
+  // de abajo no necesite aseverar el tipo a mano.
+  const positioned = valid.filter(
+    (run): run is EngineRun & { signals: { competitivePosition: number } } =>
+      run.signals.competitivePosition !== null,
+  );
   const competitive = average(
-    positioned.map((run) => positionScore(run.signals.competitivePosition as number)),
+    positioned.map((run) => positionScore(run.signals.competitivePosition)),
   );
 
   return {

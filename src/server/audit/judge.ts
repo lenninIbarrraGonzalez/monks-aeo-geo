@@ -147,7 +147,16 @@ export async function judgePrompt(
 
   for (const entry of output.results) {
     const engineId = byLowerId.get(entry.engine.trim().toLowerCase());
-    if (!engineId) continue;
+    if (!engineId) {
+      // El juez nombró un motor que no está entre los que respondieron (typo/alias). Antes se
+      // descartaba en silencio y la marca aparecía ausente sin rastro: lo dejamos en el log.
+      console.warn('[judge] señal descartada: id de motor no reconocido', {
+        promptId: prompt.id,
+        reported: entry.engine,
+        expected: [...byLowerId.values()],
+      });
+      continue;
+    }
     result.set(engineId, {
       mentioned: entry.mentioned,
       accuracy: entry.mentioned ? clampAccuracy(entry.accuracy) : 0,

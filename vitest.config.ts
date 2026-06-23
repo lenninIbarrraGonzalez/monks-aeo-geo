@@ -39,6 +39,15 @@ export default defineConfig({
         'src/components/**',
       ],
       reporter: ['text', 'html'],
+      // Trinquete contra regresiones: el piso va apenas por debajo de la cobertura medida, de modo
+      // que el job `quality` de CI falla si baja de forma sensible (no por ruido). Subir a medida
+      // que se cierren huecos (hoy: el hook `use-audit-stream` y `site-header` quedan sin tests).
+      thresholds: {
+        statements: 84,
+        branches: 75,
+        functions: 85,
+        lines: 85,
+      },
     },
   },
 });
