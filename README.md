@@ -5,6 +5,7 @@ Aplicación web que **audita cómo los asistentes de IA perciben una marca**, le
 (Answer / Generative Engine Optimization, la disciplina sucesora del SEO).
 
 <p>
+  <a href="https://monks-aeo-geo.vercel.app/"><img alt="Demo en vivo" src="https://img.shields.io/badge/Demo%20en%20vivo-monks--aeo--geo.vercel.app-000000?logo=vercel&logoColor=white"></a>
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white">
   <img alt="React 19" src="https://img.shields.io/badge/React-19-149ECA?logo=react&logoColor=white">
   <img alt="TypeScript strict" src="https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white">
@@ -14,6 +15,8 @@ Aplicación web que **audita cómo los asistentes de IA perciben una marca**, le
 
 > **Contexto:** demo de portafolio. Audiencia = especialistas en AEO/GEO, por lo que el proyecto
 > busca ser **creíble en su metodología** e **impecable en lo visual**.
+
+**🔗 Demo en vivo:** [monks-aeo-geo.vercel.app](https://monks-aeo-geo.vercel.app/)
 
 <table>
   <tr>
