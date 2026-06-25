@@ -36,7 +36,7 @@ export interface RunAuditOptions {
    * (si está) y el resto detrás: si el preferido cae, la auditoría sigue con el siguiente.
    */
   analysts?: Engine[];
-  /** Tope de tokens por respuesta de motor (default 800). */
+  /** Tope de tokens por respuesta de motor (default 400). */
   maxTokens?: number;
   /** Callback de progreso (puede ser async). */
   onProgress?: ProgressHandler;
@@ -44,7 +44,7 @@ export interface RunAuditOptions {
   signal?: AbortSignal;
 }
 
-const DEFAULT_MAX_TOKENS = 800;
+const DEFAULT_MAX_TOKENS = 400;
 
 /**
  * Tope de tokens para las llamadas a los analistas (perfil y juez). Su salida es JSON acotado
@@ -116,9 +116,12 @@ export async function runAudit(input: string, options: RunAuditOptions = {}): Pr
   await emit({ type: 'prompts', prompts });
 
   // 3–4. Por cada prompt: ejecución multi-motor en paralelo + juez batcheado.
-  const runs: EngineRun[] = [];
-
-  for (const prompt of prompts) {
+  //
+  // Los prompts son independientes entre sí (no comparten datos), así que se procesan TODOS en
+  // paralelo en vez de uno por uno: la fase pesada pasa de `3 × (motor + juez)` a `1 × (motor +
+  // juez)`. El frontend indexa el progreso por `promptId`/`engineId`, así que el orden de llegada
+  // de los eventos no importa. `runs` conserva el orden de prompts porque `map` preserva el índice.
+  const processPrompt = async (prompt: AuditPrompt): Promise<EngineRun[]> => {
     const settled = await Promise.all(
       engines.map(async (engine) => {
         try {
@@ -161,12 +164,12 @@ export async function runAudit(input: string, options: RunAuditOptions = {}): Pr
     }
     await emit({ type: 'judged', promptId: prompt.id });
 
-    for (const s of settled) {
+    return settled.map((s) => {
       const cellError = s.error ?? judgeError;
       const signals = cellError
         ? { ...ABSENT_SIGNALS }
         : (signalsByEngine.get(s.engine.id) ?? { ...ABSENT_SIGNALS });
-      runs.push({
+      return {
         promptId: prompt.id,
         intent: prompt.intent,
         engineId: s.engine.id,
@@ -175,9 +178,12 @@ export async function runAudit(input: string, options: RunAuditOptions = {}): Pr
         answer: s.answer,
         signals,
         ...(cellError && { error: cellError }),
-      });
-    }
-  }
+      };
+    });
+  };
+
+  const runsByPrompt = await Promise.all(prompts.map(processPrompt));
+  const runs: EngineRun[] = runsByPrompt.flat();
 
   // 5. Scoring.
   const score = computeScore(runs, prompts);

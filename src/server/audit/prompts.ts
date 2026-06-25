@@ -22,13 +22,13 @@ const TEMPLATES: Record<
 > = {
   es: {
     definitional: '¿Qué es {brand}? Explicámelo brevemente.',
-    alternatives: '¿Cuáles son las mejores alternativas a {brand}?',
-    categorical: '¿Cuáles son las mejores opciones en {category} hoy?',
+    alternatives: '¿Cuáles son las mejores alternativas a {brand}? Respondé brevemente.',
+    categorical: '¿Cuáles son las mejores opciones en {category} hoy? Respondé brevemente.',
   },
   en: {
     definitional: 'What is {brand}? Briefly explain it.',
-    alternatives: 'What are the best alternatives to {brand}?',
-    categorical: 'What are the best options in {category} today?',
+    alternatives: 'What are the best alternatives to {brand}? Answer briefly.',
+    categorical: 'What are the best options in {category} today? Answer briefly.',
   },
 };
 
