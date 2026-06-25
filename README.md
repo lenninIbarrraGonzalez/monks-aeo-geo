@@ -15,7 +15,38 @@ Aplicación web que **audita cómo los asistentes de IA perciben una marca**, le
 > **Contexto:** demo de portafolio. Audiencia = especialistas en AEO/GEO, por lo que el proyecto
 > busca ser **creíble en su metodología** e **impecable en lo visual**.
 
-![Landing del AEO/GEO Auditor](./img_readme/landing.png)
+<table>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <img alt="Landing: ingreso de marca y ejemplos sugeridos" src="./img_readme/monks1.png">
+      <br><sub><b>Landing</b> · ingreso de marca y ejemplos sugeridos</sub>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <img alt="Progreso en vivo: perfil detectado, preguntas y consulta multi-motor" src="./img_readme/monks2.png">
+      <br><sub><b>Progreso en vivo</b> · perfil, preguntas y consulta multi-motor</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <img alt="Auditoría completa: AI Visibility Score y desglose por dimensión" src="./img_readme/monks3.png">
+      <br><sub><b>Auditoría completa</b> · AI Visibility Score y dimensiones</sub>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <img alt="Posicionamiento competitivo y respuestas textuales por motor" src="./img_readme/monks4.png">
+      <br><sub><b>Posicionamiento competitivo</b> · respuestas por motor</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <img alt="Respuestas categóricas etiquetadas por cada motor de IA" src="./img_readme/monks5.png">
+      <br><sub><b>Respuestas categóricas</b> · etiquetadas por cada motor</sub>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <img alt="Recomendaciones AEO/GEO accionables y motores consultados" src="./img_readme/monks6.png">
+      <br><sub><b>Recomendaciones AEO/GEO</b> · accionables y motores consultados</sub>
+    </td>
+  </tr>
+</table>
 
 ---
 
